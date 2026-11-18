@@ -98,6 +98,37 @@ std::string toUpper(std::string in)
 	return in;
 }
 
+
+// Usage text for -h/--help. Printed before MPI or OpenMP are started, so that asking
+// for help (or calling without arguments) never launches parallel processes.
+static void PrintUsage(const char *program)
+{
+	printf(
+		"WaSiM %s\n"
+		"\n"
+		"usage: %s <control file> [<control file> ...] [options]\n"
+		"\n"
+		"Runs the model for each control file in turn.\n"
+		"\n"
+		"options:\n"
+		"  -h, --help                 show this help and exit\n"
+		"  --version                  show the version and exit\n"
+		"  -diagfile:<file>           write diagnostics (XML) to <file> instead of WaSiM_Diag.xml\n"
+		"  -diaglevel:<level>         FATAL, ERROR, WARNING, INFO or DEBUG (default)\n"
+		"  -mode:routing              only do channel routing, from the given control file\n"
+		"  -dumpmode[:<n>]            write a dump file when soil moisture, soil temperature or\n"
+		"                             hydraulic head leave their expected range (at most n files)\n"
+		"  -closeAfterDump            stop after the first dump\n"
+		"  -repairAfterDump           try to repair the values after a dump and continue\n"
+		"\n"
+		"environment:\n"
+		"  OMP_NUM_THREADS            number of OpenMP threads\n"
+		"  OMP_SCHEDULE               schedule of the parallel loops (see README)\n"
+		"\n"
+		"The model description (manual) is docs/wasim_2025_en.pdf in the source repository.\n",
+		_wasimuzr_version_english_, program);
+}
+
 int main(int argc,char *argv[])
 {
 	int steuerdateinummer;
@@ -106,6 +137,26 @@ int main(int argc,char *argv[])
 
 	int mpi_rank=0;
 	int mpi_size=1;
+
+	// handle help and version requests before starting MPI
+	for (int i = 1; i < argc; i++)
+	{
+		if ((strcmp(argv[i], "-h") == 0) || (strcmp(argv[i], "--help") == 0) || (strcmp(argv[i], "-help") == 0))
+		{
+			PrintUsage(argv[0]);
+			return 0;
+		}
+		if (strcmp(argv[i], "--version") == 0)
+		{
+			printf("WaSiM %s\n", _wasimuzr_version_english_);
+			return 0;
+		}
+	}
+	if (argc < 2)
+	{
+		PrintUsage(argv[0]);
+		return 2;
+	}
 
 #ifdef _MPI
 	MPI_Init(&argc, &argv);
@@ -206,6 +257,8 @@ MPI_Barrier(MPI_COMM_WORLD);
 		(*WSstream) << "32-bit Version on Linux "<< "[end-entry]";
 #elif LINUX64
 		(*WSstream) << "64-bit Version on Linux "<< "[end-entry]";
+#elif MACOS64
+		(*WSstream) << "64-bit Version on macOS "<< "[end-entry]";
 #else
 		(*WSstream) << " unspecified version "<< "[end-entry]";
 #endif

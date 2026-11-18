@@ -1,0 +1,6 @@
+*.o
+*.xml
+wasimuzr*
+build/
+/src/wasim
+/src/wasim-mpi

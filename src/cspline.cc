@@ -117,7 +117,7 @@ dx(0),dy(0),entf(0),alpha(0),gamma(0),tst(0),LookUpTable(0)
 	sinbeta   = sin(beta);
 
 	/* berechnen der rotierten Koordinaten der linken unteren Ecke des Stationengrids
-	(das Ausgabegrid beh‰lt seine Eckkordinaten, wiel die Rotation um diese Ecke erfolgt) */
+	(das Ausgabegrid beh√§lt seine Eckkordinaten, wiel die Rotation um diese Ecke erfolgt) */
 	xlleinrot=xllein;
 	ylleinrot=yllein;
 	RotateCoordinates(&xlleinrot,&ylleinrot,beta);
@@ -527,7 +527,7 @@ void TSplines::BicubicColumnSpline(double **ze,double **y2a)
 void TSplines::BicubicRowSpline(double **ze,double **y2a,double **za)
 {
 	/* Es wird nun zunaechst ein Array belegt, dass interpolierte Werte fuer alle Spalten
-	der Inputdaten enth‰lt, aber darin jeweils fuer alle Reihen des Ausgabegrids.
+	der Inputdaten enth√§lt, aber darin jeweils fuer alle Reihen des Ausgabegrids.
 	Diese Operation muss mit rotierten Koordinaten durchgefuehrt werden,
 	es reicht, wenn sie einmal fuer das gesamte Grid ausgefuehrt wird! */
 	for (j=1;j<=ncolsein;j++)
@@ -543,7 +543,7 @@ void TSplines::BicubicRowSpline(double **ze,double **y2a,double **za)
 		klo=1;khi=1;
 		if ((equalarea)&&(y[nrowsein]>nodataein+.01))
 		{
-			/* weil das Stations-Netz das Bezugskoordinatensystem enth‰lt, kann man hier auf sinbeta und cobeta verzichten */
+			/* weil das Stations-Netz das Bezugskoordinatensystem enth√§lt, kann man hier auf sinbeta und cobeta verzichten */
 			x[nrowsein+1]  = x[nrowsein]+cseiny;
 			y[nrowsein+1]  = ze[1][j];
 			y2[nrowsein+1] = y2a[1][j];

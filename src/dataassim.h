@@ -32,7 +32,7 @@ public:
 	data_assimilation_entity(data_assimilation *p_parent, wasim::mystream *Stream,
 		std::string entityString, gridinfotype *gridinfo,
 		double xll, double yll, double cs, int ncols, int nrows, int mpistartrow, int mpiendrow, int mina,int sta, int tga, int mta, int jra, double min_to_int_end,int InV);
-	~data_assimilation_entity();
+	virtual ~data_assimilation_entity();
 	// pure virtual function; only derived classes that implement run() can be instanciated
 	virtual void run(long me,long se, long tg, long mt, long jr) = 0;
 

@@ -70,6 +70,92 @@ version    : stream output into all possible childs of baseclass
 
 using namespace std;
 
+#include <cmath>
+#include <cstdlib>
+#include <vector>
+
+/* Debug aid for porting processes: dump named grids at fixed points of the time loop.
+   Only active when WASIM_DUMP_GRIDS (comma-separated grid identifications, as in modconst.h,
+   e.g. "precipitation,snow_storage_solid") and WASIM_DUMP_DIR are set; WASIM_DUMP_POINTS
+   optionally restricts the points (default: all). Each (point, grid) pair is appended to
+   <dir>/<point>__<grid>.f64 as raw float64, row-major over rows 1..nrows and columns 1..ncols
+   (stacks: levels+1 values per cell); rows not held by this process are NaN. <dir>/manifest.txt
+   gets one line "point grid nrows ncols levels" per file, <dir>/identifications.txt lists all
+   grids known at the first point. Nothing is changed in the model. */
+static void griddump(const char *point, gridinfotype *gridinfo, int nrows, int ncols)
+{
+	static int active = -1;
+	static std::vector<std::string> names, points;
+	static std::string dir, rank;
+	static std::vector<std::string> seen;
+	if (active == 0) return;
+	if (active < 0)
+	{
+		const char *g = getenv("WASIM_DUMP_GRIDS"), *d = getenv("WASIM_DUMP_DIR"), *pt = getenv("WASIM_DUMP_POINTS");
+		active = (g && d && *g && *d) ? 1 : 0;
+		if (!active) return;
+		dir = d;
+		auto split = [](const char *s, std::vector<std::string> &out) {
+			std::stringstream ss(s); std::string item;
+			while (std::getline(ss, item, ',')) if (!item.empty()) out.push_back(item);
+		};
+		split(g, names);
+		if (pt) split(pt, points);
+#ifdef _MPI
+		int r = 0, n = 1;
+		MPI_Comm_rank(MPI_COMM_WORLD, &r);
+		MPI_Comm_size(MPI_COMM_WORLD, &n);
+		if (n > 1) rank = ".rank" + std::to_string(r);
+#endif
+		FILE *l = fopen((dir + "/identifications" + rank + ".txt").c_str(), "w");
+		if (l)
+		{
+			for (int i = 1; i <= gridmaxanzahl; i++)
+				if (gridinfo[i].identification && *gridinfo[i].identification)
+					fprintf(l, "%s %d\n", gridinfo[i].identification, gridinfo[i].stackpointer ? gridinfo[i].levels : 0);
+			fclose(l);
+		}
+	}
+	if (!points.empty())
+	{
+		bool wanted = false;
+		for (auto &p : points) if (p == point) wanted = true;
+		if (!wanted) return;
+	}
+	for (auto &name : names)
+	{
+		int k = 0;
+		for (int i = 1; i <= gridmaxanzahl; i++)
+			if (gridinfo[i].identification && name == gridinfo[i].identification) { k = i; break; }
+		if (!k || (!gridinfo[k].pointer && !gridinfo[k].stackpointer)) continue;
+		gridinfotype &g = gridinfo[k];
+		int nvals = g.stackpointer ? g.levels + 1 : 1;
+		std::string safe = name;
+		for (auto &c : safe) if (c == '/' || c == ' ') c = '_';
+		std::string file = dir + "/" + point + "__" + safe + rank + ".f64";
+		bool first = true;
+		for (auto &f : seen) if (f == file) first = false;
+		if (first)
+		{
+			seen.push_back(file);
+			FILE *m = fopen((dir + "/manifest" + rank + ".txt").c_str(), "a");
+			if (m) { fprintf(m, "%s %s %d %d %d\n", point, safe.c_str(), nrows, ncols, nvals - 1); fclose(m); }
+		}
+		FILE *f = fopen(file.c_str(), first ? "wb" : "ab");
+		if (!f) continue;
+		std::vector<double> row((size_t)ncols * nvals);
+		for (int i = 1; i <= nrows; i++)
+		{
+			bool have = i >= g.nrl && i <= g.nrh && (g.stackpointer ? g.stackpointer[i] != NULL : g.pointer[i] != NULL);
+			for (int j = 1; j <= ncols; j++)
+				for (int l = 0; l < nvals; l++)
+					row[(size_t)(j - 1) * nvals + l] = !have ? NAN : (g.stackpointer ? g.stackpointer[i][j][l] : g.pointer[i][j]);
+			fwrite(row.data(), sizeof(double), row.size(), f);
+		}
+		fclose(f);
+	}
+}
+
 
 ModellApplication::ModellApplication(wasim::mystream *Stream, int argc, char *argv[], int steuerdateinummer) :
 	memory_handling(),
@@ -1094,6 +1180,7 @@ int ModellApplication::run()
 				meteo[i]->CalculateRegressionParameters(0); // only one set of regressionparameters --> one region only in direct regression
 			}
 
+			griddump("start", gridinfo, nrows, ncols);
 			if (superposition->do_it==0)  precicorr->run();
 
 			// if this pragma is uncommented, then the parallel pragmas in meteoint should be commented if the compiler 
@@ -1149,6 +1236,7 @@ int ModellApplication::run()
 			}
 
 			superposition->WriteResultGrids();
+			griddump("after_meteo", gridinfo, nrows, ncols);
 
 //			// reading new standard grids, if required
 //			initial->readPeriodicStandardGrids(minute,stunde,tag,monat,jahr,Interval); // for all standard grids with a cPerType of H, D, M or Y
@@ -1157,6 +1245,7 @@ int ModellApplication::run()
 		abschattungsbedingten Korrekturfaktoren fuer die direkte Sonnenstrahlung */
 
 			expokorrektur->run(minute, stunde,tag,monat,jahr);
+			griddump("after_expokorr", gridinfo, nrows, ncols);
 
 			/* Errechnen der potentiellen und realen Verdunstung (fuer Boden/Pflanzen)
 		als Eingabegroessen fuer die weiteren Teilmodelle, die reale Verdunstung
@@ -1164,9 +1253,11 @@ int ModellApplication::run()
 		des vorhergehenden Intervalles berechnet!
 	*/
 			verdunstungsmodell->potentiell(minute, stunde,tag,monat,jahr);
+			griddump("after_etp", gridinfo, nrows, ncols);
 
 			/* applying irrigation water according to the irrigation table or an optimizing instruction */
 			irrigationmodell->run(minute, stunde,tag,monat,jahr);
+			griddump("after_irrigation", gridinfo, nrows, ncols);
 
 //			/* Schneeverdunstung von ETP abziehen und GMB aktualisieren*/
 //			verdunstungsmodell->snow(minute, stunde,tag,monat,jahr); // this component could be switched off when usig energy balance approach for snow melt. Or at least the approach should be worked over since usually the available energy cannot be used for pre evaporation but the melting energy must be satisfied first
@@ -1175,15 +1266,19 @@ int ModellApplication::run()
 			{
 				/* Bilanzieren des Interzeptionsspeichers einfangen, Abtropfen, Verdunsten */
 				interzeptionsmodell->run(minute, stunde, tag, monat, jahr);
+				griddump("after_interception", gridinfo, nrows, ncols);
 				/* Akkumulation, Schmelze, Rueckgefrieren, Ausfluss, evtl. Verdunstung */
 				schneemodell->run1(minute, stunde, tag, monat, jahr);
+				griddump("after_snow1", gridinfo, nrows, ncols);
 			}
 			else
 			{
 				/* Akkumulation, Schmelze, Rueckgefrieren, Ausfluss, evtl. Verdunstung */
 				schneemodell->run1(minute, stunde, tag, monat, jahr);
+				griddump("after_snow1", gridinfo, nrows, ncols);
 				/* Bilanzieren des Interzeptionsspeichers einfangen, Abtropfen, Verdunsten */
 				interzeptionsmodell->run(minute, stunde, tag, monat, jahr);
+				griddump("after_interception", gridinfo, nrows, ncols);
 			}
 			/* da die reale Verdunstung in verschiedenen Teilmodellen noch veraendert werden kann,
 				wird sie erst als letzte Groesse endgueltig berechnet */
@@ -1191,8 +1286,10 @@ int ModellApplication::run()
 			// Schneeverdunstung von ETP abziehen und GMB aktualisieren
 			// hierher von oben verschoben, da erst im Schneemodell EVRS berechnet wird, die hier dann statistisch erfasst wird
 			verdunstungsmodell->snow(minute, stunde, tag, monat, jahr); // this component could be switched off when usig energy balance approach for snow melt. Or at least the approach should be worked over since usually the available energy cannot be used for pre evaporation but the melting energy must be satisfied first
+			griddump("after_snowevap", gridinfo, nrows, ncols);
 
 			siltingupmodell->run(minute, stunde,tag,monat,jahr);
+			griddump("after_siltingup", gridinfo, nrows, ncols);
 			
 			// dummy frame for time step splitting 
 			// since groundwater module, unsaturated zone and surface routing affect each other
@@ -1213,16 +1310,21 @@ int ModellApplication::run()
 			for (int substep=1;substep<=substepcnt;substep++)
 			{
 				unsatzonmodell->run(minute, stunde,tag,monat,jahr,substep);
+				griddump("after_unsatzon", gridinfo, nrows, ncols);
 				// surface routing is not yet MPI or OpenMP aware, so all grids used by Surface routing must be synchronized now or at least when starting surface routing
 				surfaceroutingmodell->run(minute, stunde,tag,monat,jahr,substep);
+				griddump("after_surfrout", gridinfo, nrows, ncols);
 				verdunstungsmodell->real_uzr(minute, stunde,tag,monat,jahr,substep);
+				griddump("after_etreal", gridinfo, nrows, ncols);
 				// gwflow is not yet MPI aware, so all grids used by GWflow must be syncronised now or at least when starting wflow module
 				gwflow->run(minute, stunde,tag,monat,jahr,substep);
+				griddump("after_gwflow", gridinfo, nrows, ncols);
 				specialoutput->run(minute, stunde,tag,monat,jahr,true,substep);
 			}
 //			(*WSstream) << "back in main loop"<< "[end-entry]";
 
 			schneemodell->run2(minute, stunde, tag, monat, jahr);
+			griddump("after_snow2", gridinfo, nrows, ncols);
 
 			unsatzonmodell->get_max_pumping();
 
@@ -1230,6 +1332,7 @@ int ModellApplication::run()
 			surfaceroutingmodell->post_run(minute, stunde,tag,monat,jahr,0);
 			verdunstungsmodell->post_real_uzr(minute, stunde,tag,monat,jahr,0);
 			gwflow->post_run(minute, stunde,tag,monat,jahr,0);
+			griddump("after_post_run", gridinfo, nrows, ncols);
 
 
 
@@ -1260,6 +1363,7 @@ int ModellApplication::run()
 				int minute = iter->first;
 				int stunde = iter->second;
 				abflussmodell->run(minute, stunde, tag, monat, jahr, actsubtimestep, numsubtimesteps);
+				griddump("after_routing", gridinfo, nrows, ncols);
 				actsubtimestep++;
 			}
 			delete timestepvector;

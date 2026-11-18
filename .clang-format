@@ -1,0 +1,17 @@
+# Proposed formatting style, close to the existing code (tabs, braces on their own line).
+# Not applied to the sources yet; see TODO.md. Format changed lines only with:
+#   git clang-format
+BasedOnStyle: Microsoft
+UseTab: ForIndentation
+TabWidth: 4
+IndentWidth: 4
+ColumnLimit: 0
+BreakBeforeBraces: Allman
+AllowShortIfStatementsOnASingleLine: WithoutElse
+AllowShortBlocksOnASingleLine: Always
+AllowShortFunctionsOnASingleLine: All
+SortIncludes: Never
+IndentPPDirectives: None
+DerivePointerAlignment: true
+SpaceAfterCStyleCast: false
+ReflowComments: false

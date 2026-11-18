@@ -293,7 +293,7 @@ void routingclass::ReadZuleitung(double **p_Qges,long p_jr,long p_mt,long p_tg,l
 					p_Qges[1][idx]=0; // nodata values are handled as 0 values
 				}
 			}
-			// Umwandeln der in m^3/s gelesenen Werte in mm/Zeitintervall, es wird die Fläche angenommen,
+			// Umwandeln der in m^3/s gelesenen Werte in mm/Zeitintervall, es wird die FlÃ¤che angenommen,
 			// die im Parametesatz als AE=... steht. Die Konzentrationen bleiben, wie sie eingelesen wurden
 			p_Qges[0][idx]=m3s_to_mmh(wert,AE[OLs+SUMTRIBs+i],InV);
 			ZL_buffer[i].NextRecord();
@@ -975,7 +975,7 @@ void routingclass::SetRoutingParams(int p_index,int p_OL,int *p_numST,double p_k
 		wqtab[p_index].delta[i]=(int)(wqtab[p_index].t[i]/wqtab[p_index].n/InV*60.0*(double)subint);
 		if (wqtab[p_index].delta[i]>maxdelta)
 		{
-			maxdelta=wqtab[p_index].delta[i]; // es kann sein, dass beim Überfluten des Vorlandes die Gesamtfliessgeschwindigkeit kleiner wird
+			maxdelta=wqtab[p_index].delta[i]; // es kann sein, dass beim Ãœberfluten des Vorlandes die Gesamtfliessgeschwindigkeit kleiner wird
 		}
 	}
 
@@ -1587,7 +1587,7 @@ void routingclass::Routing(long jahr,long monat,long tag,long stunde,long minute
 	{ /* in die entsprechenden Qges-Elemente, die sich hinter den <zonmax> Elementen fuer echte Teilgebiete
 	aufsteigend entsprechend der Nummer der ALs einordnen */
 		double irr=0;
-		// Bewässerungsentnahme aus dem letzten Zeitschritt im irrigation-model muss noch entnommen werden können, dieser Rest muss also im Fluss bzw. im Speicher bleiben
+		// BewÃ¤sserungsentnahme aus dem letzten Zeitschritt im irrigation-model muss noch entnommen werden kÃ¶nnen, dieser Rest muss also im Fluss bzw. im Speicher bleiben
 		if ((zoneSW)&&(monat>0))
 		{
 			irr = InV*60.0*mmh_to_m3s(maxirrigFromReservoirs[0][zarray[TG]],TgAe/TgAe_rel,InV); // Umrechnen mm/Interval in m^3
@@ -1648,7 +1648,7 @@ void routingclass::Routing(long jahr,long monat,long tag,long stunde,long minute
 	{
 		for (i=1;i<=SPs;i++)
 		{
-			// zunächst entnehmen der Bewässerungsmenge aus den Speichern, aber nur aus dem letzten Speicher einer Serie
+			// zunÃ¤chst entnehmen der BewÃ¤sserungsmenge aus den Speichern, aber nur aus dem letzten Speicher einer Serie
 			double irr=0;
 			if ((zoneSW)&&(monat>0)&&(i==SPs))
 			{
@@ -1705,7 +1705,7 @@ void routingclass::Routing(long jahr,long monat,long tag,long stunde,long minute
 			}
 			if (monat>0)  /* soll in der Initialisierung nicht geschrieben werden */
 			{
-				// verfügbare Bewässerungsmenge aus Speicher berechnen in mm bezogen auf aktuelles Teilgebiet
+				// verfÃ¼gbare BewÃ¤sserungsmenge aus Speicher berechnen in mm bezogen auf aktuelles Teilgebiet
 				if (i==SPs)
 				{
 					maxirrigFromReservoirs[0][zarray[TG]] = m3s_to_mmh(Speicher[i].Vakt[0]/60.0/InV,TgAe/TgAe_rel,InV);
@@ -2050,7 +2050,7 @@ void routingclass::ClearMemory()
 							}
                         }
                 }
-                // fluss darf hier nicht freigegebenw werden, weil es nur ein übergebener Parameter war!
+                // fluss darf hier nicht freigegebenw werden, weil es nur ein Ã¼bergebener Parameter war!
                 // die einlenen Array-Elemente wurden jedoch von den einzelnen Instanzen reserviert und muessen also freigegeben werden
 
 		if (wqtab)
@@ -4261,7 +4261,7 @@ void abflussmodellklasse::run(long me,long se, long tg, long mt, long jr, int ac
 	{
 		if (lastday != tg)
 		{
-			sprintf(additionalinfo, "routing only for day %.04d-%.02d-%.02d",jr,mt,tg);
+			sprintf(additionalinfo, "routing only for day %.04ld-%.02ld-%.02ld",jr,mt,tg);
 			lastday = tg;
 		}
 	}
@@ -4379,7 +4379,7 @@ void abflussmodellklasse::run(long me,long se, long tg, long mt, long jr, int ac
 //		for (i=0;i<20;i++) Spende[i]=Spende[i+1];
 //		Spende[20]=zeiger;
 //
-//		/* Einlesen der nächsten Spenden */
+//		/* Einlesen der nÃ¤chsten Spenden */
 //		if (spendenende<10)
 //		{
 //			for (i=1;i<=spendenanzahl;i++)
@@ -4627,7 +4627,7 @@ there are no considerations of exceeding amounts from upstream areas that could 
 		for (i=0;i<20;i++) Spende[i]=Spende[i+1];
 		Spende[20]=zeiger;
 
-		/* Einlesen der nächsten Spenden */
+		/* Einlesen der nÃ¤chsten Spenden */
 		if (spendenende<10)
 		{
 			for (i=1;i<=spendenanzahl;i++)

@@ -284,7 +284,7 @@ void zonalstatistic::calc_and_done(long jahr,long monat,long tag,long stunde,lon
 				MPI_Type_free(&zonevectortype);
 
 			} else if (gathermethod==3) {
-				// Version ohne Reduce, aber mit send/Recv Funktion für Summenbildung, alle Zonen zusammen in langen Speicherblöcken
+				// Version ohne Reduce, aber mit send/Recv Funktion fÃ¼r Summenbildung, alle Zonen zusammen in langen SpeicherblÃ¶cken
 				double *n1,*sx1,*relcellsum1;
 				double *ntot,*sxtot,*relcellsumtot;
 
@@ -350,7 +350,7 @@ void zonalstatistic::calc_and_done(long jahr,long monat,long tag,long stunde,lon
 				delete[] sxtot;
 				delete[] relcellsumtot;
 			} else if (gathermethod==4) {
-				// Version ohne Reduce, aber mit send/Recv Funktion für Summenbildung, alle Zonen zusammen in langen Speicherblöcken
+				// Version ohne Reduce, aber mit send/Recv Funktion fÃ¼r Summenbildung, alle Zonen zusammen in langen SpeicherblÃ¶cken
 				double *n1,*sx1,*relcellsum1;
 				double *ntot,*sxtot,*relcellsumtot;
 
@@ -711,7 +711,7 @@ zonestat(0),mittelwert(0),cnt(0),gesamtsumme(0),zarray(0),useMinutes(false)
 			gesamtsumme = 0.0;  /* Summe der pro Intervall errechneten Gebietsmittelwerte fuer cnt Intervalle */
 			cnt         = 0;    /* haelt die Anzahl der abgelaufenen Intervalle zur Mittelbildung fest */
 			this->useMinutes = useMinutes;
-			// construct filename when a default output dîr was given
+			// construct filename when a default output dÃ®r was given
 			if (DefaultOutputDirectory)
 			{
 				bool bIsComplete=false;
@@ -4060,8 +4060,8 @@ void modelobject::printgridfile(char *dateiname, double **grid, bool bTextMode, 
         double *latbuf, *lonbuf;
         
         if(gridinfo[1].has_latgrid_) {
-            latbuf = new double[(ncols)*(nrows)];
-            int count = 0;
+            latbuf = new double[(size_t)ncols * nrows];
+            size_t count = 0;
             for (j=1; j<=ncols; j++) {
 				for (i = 1; i <= nrows; i++) {
 						latbuf[count] = (gridinfo[gridinfo[1].latgrid_index_].pointer[i]) ? gridinfo[gridinfo[1].latgrid_index_].pointer[i][j] : nodata;
@@ -4072,8 +4072,8 @@ void modelobject::printgridfile(char *dateiname, double **grid, bool bTextMode, 
         }
         
         if(gridinfo[1].has_longrid_) {
-            lonbuf = new double[(ncols)*(nrows)];
-            int count = 0;
+            lonbuf = new double[(size_t)ncols * nrows];
+            size_t count = 0;
 			for (j = 1; j <= ncols; j++) {
 				for (i = 1; i <= nrows; i++) {
 					lonbuf[count] = (gridinfo[gridinfo[1].longrid_index_].pointer[i])?gridinfo[gridinfo[1].longrid_index_].pointer[i][j]:nodata;
@@ -4086,8 +4086,8 @@ void modelobject::printgridfile(char *dateiname, double **grid, bool bTextMode, 
         // Since Wasim doesn't use row and column 0 of the array, we have to copy the data for netcdf
         if (doublemode) {
 
-            double *gridbuf = new double[(ncols)*(nrows)];
-            int count = 0;
+            double *gridbuf = new double[(size_t)ncols * nrows];
+            size_t count = 0;
 			for (j = 1; j <= ncols; j++) {
 				for (i = 1; i <= nrows; i++) {
                     gridbuf[count] = (grid[i])?grid[i][j]:nodata;
@@ -4101,8 +4101,8 @@ void modelobject::printgridfile(char *dateiname, double **grid, bool bTextMode, 
             
         } else {
             
-            float *gridbuf = new float[(ncols)*(nrows)];
-            int count = 0;
+            float *gridbuf = new float[(size_t)ncols * nrows];
+            size_t count = 0;
 			for (j = 1; j <= ncols; j++) {
 				for (i = 1; i <= nrows; i++) {
 					gridbuf[count] = (grid[i]) ? grid[i][j] : nodata;
@@ -4355,8 +4355,8 @@ void modelobject::printsummengridfile(char *dateiname, double **grid, bool bText
         double *latbuf, *lonbuf;
         
         if(gridinfo[1].has_latgrid_) {
-            latbuf = new double[(ncols)*(nrows)];
-            int count = 0;
+            latbuf = new double[(size_t)ncols * nrows];
+            size_t count = 0;
 			for (j = 1; j <= ncols; j++) {
 				for (i = 1; i <= nrows; i++) {
 					latbuf[count] = (gridinfo[gridinfo[1].latgrid_index_].pointer[i])?gridinfo[gridinfo[1].latgrid_index_].pointer[i][j]:nodata;
@@ -4367,8 +4367,8 @@ void modelobject::printsummengridfile(char *dateiname, double **grid, bool bText
         }
         
         if(gridinfo[1].has_longrid_) {
-            lonbuf = new double[(ncols)*(nrows)];
-            int count = 0;
+            lonbuf = new double[(size_t)ncols * nrows];
+            size_t count = 0;
 			for (j = 1; j <= ncols; j++) {
 				for (i = 1; i <= nrows; i++) {
 					lonbuf[count] = (gridinfo[gridinfo[1].longrid_index_].pointer[i])?gridinfo[gridinfo[1].longrid_index_].pointer[i][j]:nodata;
@@ -4380,8 +4380,8 @@ void modelobject::printsummengridfile(char *dateiname, double **grid, bool bText
 
         // Since Wasim doesn't use row and column 0 of the array, we have to copy the data for netcdf
         if (bDoubleMode) {
-            double *gridbuf = new double[(ncols)*(nrows)];
-            int count = 0;
+            double *gridbuf = new double[(size_t)ncols * nrows];
+            size_t count = 0;
 			for (j = 1; j <= ncols; j++) {
 				for (i = 1; i <= nrows; i++) {
 					gridbuf[count] = (grid[i])?grid[i][j]:nodata;
@@ -4391,8 +4391,8 @@ void modelobject::printsummengridfile(char *dateiname, double **grid, bool bText
             netcdfOut->writeTimestep(true, gridbuf, NULL, completednamenetcdf, varname, nrows, ncols, nodata,cellsize);
             delete[] gridbuf;
         } else {
-            float *gridbuf = new float[(ncols)*(nrows)];
-            int count = 0;
+            float *gridbuf = new float[(size_t)ncols * nrows];
+            size_t count = 0;
 			for (j = 1; j <= ncols; j++) {
 				for (i = 1; i <= nrows; i++) {
 					gridbuf[count] = (grid[i])?grid[i][j]:nodata;
@@ -4421,8 +4421,8 @@ void modelobject::printsummengridfile(char *dateiname, double **grid, bool bText
 void modelobject::writegridtofile(int idx, int gather, bool doNotPrintAverageYet)
 /* schreibt ein durch **gridinfo[idx].pointer adressiertes Grid aus dem Speicher auf die Disk
 Codes :
-1000er Stelle: 1 = ein Summengrid über die Dauer der Vegetationsperiode wird gechrieben
-				2 = ein Mittelwertgrid über die Dauer der Vegetationsperiode wird gechrieben
+1000er Stelle: 1 = ein Summengrid Ã¼ber die Dauer der Vegetationsperiode wird gechrieben
+				2 = ein Mittelwertgrid Ã¼ber die Dauer der Vegetationsperiode wird gechrieben
 	100er Stelle: 1 = ein Minimumgrid wird geschrieben
 				2 = ein Maximumgrid wird geschrieben
 				3 = Minumum- und Maximumgrids werden geschrieben
@@ -4435,7 +4435,7 @@ Codes :
 				6 = es wird jedes Jahr ein Durchschnittsgrid geschrieben
 				7 = es wird jeden Monat ein Durchschnitssgrid geschrieben
 				8 = es wird fuer jeden Tag ein Durchschnitssgrid geschrieben
-	1er Stelle:  (gilt für die aktuellen Werte der Groessen, also keine Summen oder Durchschnittswerte!)
+	1er Stelle:  (gilt fÃ¼r die aktuellen Werte der Groessen, also keine Summen oder Durchschnittswerte!)
 				1 = schreiben nach jedem Intervall in dasselbe Grid
 				2 = immer ein neues Grid pro Intervall (Name: "<%.4s>%02d%02d.%02d",name,monat,tag,stunde)
 				3 = nur das letzte Grid des Modellaufes wird geschrieben
@@ -4443,7 +4443,7 @@ Codes :
 				5 = immer zu 24 Uhr wird ein neues Grid geschrieben         
 				6 = am Monatsende
 				7 = am Jahresende
-				8 = dieses Grid wird nach dem Einlesen sofort rausgeschrieben, so dass man ein gefülltest Grid ausgegeben erhält und nicht die Lücken manuell füllen muss.
+				8 = dieses Grid wird nach dem Einlesen sofort rausgeschrieben, so dass man ein gefÃ¼lltest Grid ausgegeben erhÃ¤lt und nicht die LÃ¼cken manuell fÃ¼llen muss.
 				*/
 {
 	if ((idx>gridmaxanzahl)||(idx<1)) return;
@@ -4718,7 +4718,7 @@ Codes :
 				if (strrchr(vegName,dirzeichen)!=NULL)
 				strcpy(tempstr,strrchr(vegName,dirzeichen)+1); else strcpy(tempstr,vegName);
 				dateiname = new char[_stringsize_];
-				if ( index(tempstr,".")==0) sprintf(tempstr,"%s.",tempstr);
+				if ( index(tempstr,".")==0) sprintf(tempstr + strlen(tempstr), ".");
 				p = index(tempstr,".");
 				//        if ( index(tempstr,".") < 4 ) p = index(tempstr,"."); else p=4;
 				if (vegWritegrid == 2)
@@ -4790,7 +4790,7 @@ Codes :
 			{
 				strcpy(dateiname,name);
 			} else if ((writegrid==2)||(writegrid==5)||(writegrid==6)||(writegrid==7))	{
-				if ( index(tempstr,".")==0) sprintf(tempstr,"%s%s",tempstr,".");
+				if ( index(tempstr,".")==0) sprintf(tempstr + strlen(tempstr), "%s", ".");
 				p = index(tempstr,".");
 				//        if ( index(tempstr,".") < 4 ) p = index(tempstr,"."); else p=4;
 
@@ -4873,7 +4873,7 @@ Codes :
 			if (strrchr(minname,dirzeichen)!=NULL)
 			strcpy(tempstr,strrchr(minname,dirzeichen)+1); else strcpy(tempstr,minname);
 			dateiname = newstring(strlen(minname)+20,1);
-			if ( index(tempstr,".")==0) sprintf(tempstr,"%s.",tempstr);
+			if ( index(tempstr,".")==0) sprintf(tempstr + strlen(tempstr), ".");
 			sprintf(dateiname,"%.*s.min",index(tempstr,"."),tempstr); /* Summengrids fuer ges.Zeit enden auf "xxxxyyyy.sum" */
 			/* Pfad wird wieder angehaengt */
 			if (strrchr(minname,dirzeichen)!=NULL)
@@ -4903,7 +4903,7 @@ Codes :
 			if (strrchr(maxname,dirzeichen)!=NULL)
 			strcpy(tempstr,strrchr(maxname,dirzeichen)+1); else strcpy(tempstr,maxname);
 			dateiname = newstring(strlen(maxname)+20,1);
-			if ( index(tempstr,".")==0) sprintf(tempstr,"%s.",tempstr);
+			if ( index(tempstr,".")==0) sprintf(tempstr + strlen(tempstr), ".");
 			sprintf(dateiname,"%.*s.max",index(tempstr,"."),tempstr); /* Summengrids fuer ges.Zeit enden auf "xxxxyyyy.sum" */
 			/* Pfad wird wieder angehaengt */
 			if (strrchr(maxname,dirzeichen)!=NULL)
@@ -4947,7 +4947,7 @@ Codes :
 			if (strrchr(summenname,dirzeichen)!=NULL)
 			strcpy(tempstr,strrchr(summenname,dirzeichen)+1); else strcpy(tempstr,summenname);
 			dateiname = newstring(strlen(summenname)+20,1);
-			if ( index(tempstr,".")==0) sprintf(tempstr,"%s.",tempstr);
+			if ( index(tempstr,".")==0) sprintf(tempstr + strlen(tempstr), ".");
 			p = index(tempstr,".");
 			if (summenwritegrid == 1)
 			sprintf(dateiname,"%.*s.sum",p,tempstr); /* Summengrids fuer ges.Zeit enden auf "xxxxyyyy.sum" */
@@ -5006,7 +5006,7 @@ Codes :
 				if (strrchr(summenname,dirzeichen)!=NULL)
 				strcpy(tempstr,strrchr(summenname,dirzeichen)+1); else strcpy(tempstr,summenname);
 				dateiname = newstring(strlen(summenname)+20,1);
-				if ( index(tempstr,".")==0) sprintf(tempstr,"%s.",tempstr);
+				if ( index(tempstr,".")==0) sprintf(tempstr + strlen(tempstr), ".");
 				p = index(tempstr,".");
 				//        if ( index(tempstr,".") < 4 ) p = index(tempstr,"."); else p=4;
 				if (summenwritegrid == 2)
@@ -5067,7 +5067,7 @@ Codes :
 					if (strrchr(summenname,dirzeichen)!=NULL)
 						strcpy(tempstr,strrchr(summenname,dirzeichen)+1); else strcpy(tempstr,summenname);
 					dateiname = newstring(strlen(summenname)+20,1);
-					if ( index(tempstr,".")==0) sprintf(tempstr,"%s.",tempstr);
+					if ( index(tempstr,".")==0) sprintf(tempstr + strlen(tempstr), ".");
 					p = index(tempstr,".");
 					//          if ( index(tempstr,".") < 4 ) p = index(tempstr,"."); else p=4;
 					if (summenwritegrid == 3)
@@ -5132,7 +5132,7 @@ Codes :
 						if (strrchr(summenname,dirzeichen)!=NULL)
 							strcpy(tempstr,strrchr(summenname,dirzeichen)+1); else strcpy(tempstr,summenname);
 						dateiname = newstring(strlen(summenname)+20,1);
-						if ( index(tempstr,".")==0) sprintf(tempstr,"%s.",tempstr);
+						if ( index(tempstr,".")==0) sprintf(tempstr + strlen(tempstr), ".");
 						p = index(tempstr,".");
 						//            if ( index(tempstr,".") < 4 ) p = index(tempstr,"."); else p=4;
 						if (summenwritegrid == 4)
@@ -6011,8 +6011,8 @@ void modelobject::printstackfile(char *dateiname, double ***stack, int levels, b
 			double *latbuf, *lonbuf;
 
 			if (gridinfo[1].has_latgrid_) {
-				latbuf = new double[(ncols)*(nrows)];
-				int count = 0;
+				latbuf = new double[(size_t)ncols * nrows];
+				size_t count = 0;
 				for (j = 1; j <= ncols; j++) {
 					for (i = 1; i <= nrows; i++) {
 						latbuf[count] = (gridinfo[gridinfo[1].latgrid_index_].pointer[i]) ? gridinfo[gridinfo[1].latgrid_index_].pointer[i][j] : nodata;
@@ -6023,8 +6023,8 @@ void modelobject::printstackfile(char *dateiname, double ***stack, int levels, b
 			}
 
 			if (gridinfo[1].has_longrid_) {
-				lonbuf = new double[(ncols)*(nrows)];
-				int count = 0;
+				lonbuf = new double[(size_t)ncols * nrows];
+				size_t count = 0;
 				for (j = 1; j <= ncols; j++) {
 					for (i = 1; i <= nrows; i++) {
 						lonbuf[count] = (gridinfo[gridinfo[1].longrid_index_].pointer[i]) ? gridinfo[gridinfo[1].longrid_index_].pointer[i][j] : nodata;
@@ -6036,9 +6036,9 @@ void modelobject::printstackfile(char *dateiname, double ***stack, int levels, b
 
 			// Since Wasim doesn't use row and column 0 of the array, we have to copy the data for netcdf
 			if (bDoubleMode) {
-				double *stackbuf = new double[(ncols)*(nrows)];
+				double *stackbuf = new double[(size_t)ncols * nrows];
 				for (int k = 0; k <= levels; k++) {
-					int count = 0;
+					size_t count = 0;
 					for (j = 1; j <= ncols; j++) {
 						for (i = 1; i <= nrows; i++) {
 							stackbuf[count] = (stack[i]) ? stack[i][j][k] : nodata;
@@ -6053,9 +6053,9 @@ void modelobject::printstackfile(char *dateiname, double ***stack, int levels, b
 				delete[] stackbuf;
 			}
 			else {
-				float *stackbuf = new float[(ncols)*(nrows)];
+				float *stackbuf = new float[(size_t)ncols * nrows];
 				for (int k = 0; k <= levels; k++) {
-					int count = 0;
+					size_t count = 0;
 					for (j = 1; j <= ncols; j++) {
 						for (i = 1; i <= nrows; i++) {
 							stackbuf[count] = (stack[i]) ? stack[i][j][k] : 0;
@@ -6123,7 +6123,7 @@ void modelobject::writestacktofile(int idx)
 		}
 		else if ((writestack==2)||(writestack==5))
 		{
-			if ( index(tempstr,".")==0) sprintf(tempstr,"%s%s",tempstr,".");
+			if ( index(tempstr,".")==0) sprintf(tempstr + strlen(tempstr), "%s", ".");
 			if ( index(tempstr,".") < 4 ) p = index(tempstr,"."); else p=4;
 
 // New:		// the first call will always jump over this if statement since lastYear, lastMonth, lastDay and lastHour are always set to 0 during initialization of the gridinfo array
@@ -6435,7 +6435,7 @@ int modelobject::getindex(const char *name)
 }
 
 int modelobject::getindex_first_of_3(const char *name1,const char *name2,const char *name3)
-/* Liefert den Index im gridinfo-Array zurueck, an dem der name1 auftaucht (im Feld identifîcation), wenn es ihn gibt;
+/* Liefert den Index im gridinfo-Array zurueck, an dem der name1 auftaucht (im Feld identifÃ®cation), wenn es ihn gibt;
 ansonsten wird, wenn name2 != "", das erste Auftreten von name2, so es existiert, geliefert, wenn name2 auch
 nicht im gridinfo[x].identification auftaucht, dann wird dasselbe mit name3 versucht. Gibt es keinen der drei
 Namen im gridinfo-array, dann gibt es eine Fehlermeldung. */
@@ -6478,7 +6478,7 @@ Namen im gridinfo-array, dann gibt es eine Fehlermeldung. */
 }
 
 int modelobject::getindex_first_of_4(const char *name1,const char *name2,const char *name3,const char *name4)
-/* Liefert den Index im gridinfo-Array zurueck, an dem der name1 auftaucht (im Feld identifîcation), wenn es ihn gibt;
+/* Liefert den Index im gridinfo-Array zurueck, an dem der name1 auftaucht (im Feld identifÃ®cation), wenn es ihn gibt;
 ansonsten wird, wenn name2 != "", das erste Auftreten von name2, so es existiert, geliefert, wenn name2 auch
 nicht im gridinfo[x].identification auftaucht, dann wird dasselbe mit name3 versucht. Gibt es keinen der drei
 Namen im gridinfo-array, dann gibt es eine Fehlermeldung. */

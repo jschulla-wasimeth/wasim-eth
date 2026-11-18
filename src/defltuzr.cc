@@ -1248,7 +1248,7 @@ void defaultini::GetIrrigTable(int version)
 			findeabschnitt(_irrigation_table_);
 			fscanf(steuerdatei,"%d",&usenr);
 			
-			/* Erzeugen und initialisieren der Bewässerungstabelle. Die Werte werden in
+			/* Erzeugen und initialisieren der BewÃ¤sserungstabelle. Die Werte werden in
 	defaultini aus der Steuerdatei eingelesen */
 			irrigationtable = (irrigationtabletype*)calloc(usenr+1,sizeof(irrigationtabletype));
 			for (i=1;i<=usenr;i++)
@@ -1358,7 +1358,7 @@ void defaultini::GetIrrigTable(int version)
 									sscanf(scheme,"%lf",&endamount);
 									if (!strstr(scheme,"every")) irrigationtable_error(i);
 									sprintf(scheme,"%s",strstr(scheme,"every")+strlen("every")+1);
-									sscanf(scheme,"%ld",&timestep);
+									sscanf(scheme,"%d",&timestep);
 									/* now filling the rrigation table using an internal calendar (without 02/29) */
 									irrigationtable[i].month[actindex] =startmonth;
 									irrigationtable[i].day[actindex]   =startday;
@@ -1409,7 +1409,7 @@ void defaultini::GetIrrigTable(int version)
 										sscanf(scheme,"%d",&times);
 										if (!strstr(scheme,"every")) irrigationtable_error(i);
 										sprintf(scheme,"%s",strstr(scheme,"every")+strlen("every")+1);
-										sscanf(scheme,"%ld",&timestep);
+										sscanf(scheme,"%d",&timestep);
 										/* now filling the rrigation table using an internal calendar (without 02/29) */
 										irrigationtable[i].tabcnt = actindex+times-1; /* first: there are only two known entries (start and end date) */
 										irrigationtable[i].month  = (long*)realloc(irrigationtable[i].month,(irrigationtable[i].tabcnt+1)*sizeof(long));
@@ -1580,9 +1580,9 @@ Deshalb wird diese Routine ohne Parameter aufgerufen. */
 	if (mpi_rank == 0)
 	{
 		(*WSstream) << "ranking zones from " << (*p_gridinfo)[1].name << " for " << instanzname << "[end-entry]";
-		zzone = (statrecord *)calloc(maxzonenzahl, sizeof(statrecord));  /* maxzonenzahl = 8000 zones */
+		zzone = (statrecord *)calloc(maxzonenzahl + 1, sizeof(statrecord));  /* maxzonenzahl zones (16000), index 0 unused */
 		if (!zzone) speichererror(1);
-		zzarray = (Tzarray *)calloc((size_t)maxzonenwert, sizeof(Tzarray)); /* zones codes up to max. 32767 (maxzonenwert) */
+		zzarray = (Tzarray *)calloc((size_t)maxzonenwert + 1, sizeof(Tzarray)); /* zones codes up to max. 32767 (maxzonenwert) */
 		if (!zzarray) speichererror(1);
 		FirstLastCol = (firstlast *)calloc(nrows + 1, sizeof(firstlast));
 		zzone[0].n = 0.0;
@@ -1601,7 +1601,7 @@ Deshalb wird diese Routine ohne Parameter aufgerufen. */
 				{
 					if (FirstLastCol[i].First == 0) FirstLastCol[i].First = j;
 					FirstLastCol[i].Last = j;
-					zonenid = (int)zn[i][j] + 0.5;
+					zonenid = (int)(zn[i][j] + 0.5);
 					if ((zonenid<0) || (zonenid>maxzonenwert))
 					{
 						(*WSstream) << "FATAL: invalid zone code in " << gridinfo[2].name
@@ -2053,7 +2053,7 @@ Vegetationsbedeckungsgrad VBG,
 Blattflaechenindex	LAI,
 SurfaceResistance	RSC,
 SurfaceResistance	RSI,
-Rahigkeitslänge		Z0
+RahigkeitslÃ¤nge		Z0
 */
 {
 	int i,j;
@@ -2608,7 +2608,7 @@ Rahigkeitslänge		Z0
 									{
 										if (lv<=LUtable[use].getNumFixPoints())
 										{
-											// hier wird MTSTART mit -1 für alle dynamischen Punkte belegt, ansonsten mit dem gültigen Julian Day
+											// hier wird MTSTART mit -1 fÃ¼r alle dynamischen Punkte belegt, ansonsten mit dem gÃ¼ltigen Julian Day
 											if ((LUtable[use].GetForcingThreshold(lv)<0)||(starttagnr >= LUtable[use].GetJulianDay(lv)))
 											{
 												MTSTART[layer][i][j][lv] = LUtable[use].GetJulianDay(lv)+(int)(LUtable[use].GetAltDep(lv)*(DHM[i][j]-400.0));
@@ -4088,9 +4088,9 @@ void defaultini::analyze_regions(int regioindex)
 	if (mpi_rank == 0)
 	{
 		(*WSstream) << "ranking regions from " << gridinfo[regioindex].name << " for " << instanzname << "[end-entry]";
-		zzone = (statrecord *)calloc(maxzonenzahl, sizeof(statrecord));
+		zzone = (statrecord *)calloc(maxzonenzahl + 1, sizeof(statrecord));
 		if (!zzone) speichererror(1);
-		zzarray = (Tzarray *)calloc((size_t)maxzonenwert, sizeof(Tzarray));
+		zzarray = (Tzarray *)calloc((size_t)maxzonenwert + 1, sizeof(Tzarray));
 		if (!zzarray) speichererror(1);
 		zzone[0].n = 0.0;
 		zzone[0].sx = 0.0;
@@ -4105,7 +4105,7 @@ void defaultini::analyze_regions(int regioindex)
 			{
 				if (zn[i][j] != nodata)
 				{
-					zonenid = (int)REGION1[i][j] + 0.5;
+					zonenid = (int)(REGION1[i][j] + 0.5);
 					if ((zonenid<1) || (zonenid>maxregionenwert))
 					{
 						(*WSstream) << "FATAL: invalid region code in " << gridinfo[regioindex].name
@@ -6314,8 +6314,8 @@ double defaultini::get_hmax()
 }
 
 
-/* Berechnen der aktuellen Pflanzenparameter je nach Vegetationszustand in Abhängigkeit 
-vom Julianischen Tag und der Landnutzung u ggf. der Höhe oder Temperatur.
+/* Berechnen der aktuellen Pflanzenparameter je nach Vegetationszustand in AbhÃ¤ngigkeit 
+vom Julianischen Tag und der Landnutzung u ggf. der HÃ¶he oder Temperatur.
 Das ist wichtig zur Berechnung der Verdunstung ueber die nutzbare
 Feldkapazitaet nFK und ueber den Inhalt des Bodenspeichers SB.
 nach der Berechnung der Wurzeltiefe werden nFK und SB neu berechnet,
@@ -6527,7 +6527,7 @@ double **nFKia,double **SBia)
 
 						}
 
-						/* nun Berechnen der Werte für nFK und SB, eventuell noch SSP ? */
+						/* nun Berechnen der Werte fÃ¼r nFK und SB, eventuell noch SSP ? */
 						/* nFK entspricht dem maximalen Speicherinhalt des Bodenspeichers */
 						nFKalt  = nFK[i][j];
 
@@ -6645,7 +6645,7 @@ double **nFKia,double **SBia)
 // 5) check, if the forcing units exceed the maximum F* given as parameter in the LUtable. 
 //    If yes, set TSTART-Parameter
 // ACHTUNG: funktioniert nur mit Tagesschrittweite, denn diese Berechnung wird nur im letzten Intervall 
-// des Tages mit dem dann geltenden Temperaturwert durchgeführt. Für Stundenwerte oder längere Zeitintervalle
+// des Tages mit dem dann geltenden Temperaturwert durchgefÃ¼hrt. FÃ¼r Stundenwerte oder lÃ¤ngere Zeitintervalle
 void defaultini::CalculateDynamicPhenology(int tagnr,int numlayers)
 {
 	int i,j;
@@ -6724,7 +6724,7 @@ void defaultini::CalculateDynamicPhenology(int tagnr,int numlayers)
 									if ((LUtable[use].GetMethod()==5)||(LUtable[use].GetMethod()==6))
 									{
 										int nextJDindex=1;
-										// ermitteln der Stützstelle, für die als nächstes ein STarttag berechnet werden muss
+										// ermitteln der StÃ¼tzstelle, fÃ¼r die als nÃ¤chstes ein STarttag berechnet werden muss
 										// for method 6 we use both, TSTART and MTSTART
 										while ((MTSTART[layer][i][j][nextJDindex]<tagnr)
 										&&(MTSTART[layer][i][j][nextJDindex]>0)
@@ -6841,15 +6841,15 @@ void defaultini::CalculateDynamicPhenology(int tagnr,int numlayers)
 							// if yes, check if Forcing units are sufficent to set the day, if not check if maximum
 							// day is reached
 							int nextJDindex=1;
-							// ermitteln der Stützstelle, für die als nächstes ein STarttag berechnet werden muss
-							// --> entfällt, wenn dieser Wert nicht -1 ist oder tagnr > dem JD für die Stützstelle ist
+							// ermitteln der StÃ¼tzstelle, fÃ¼r die als nÃ¤chstes ein STarttag berechnet werden muss
+							// --> entfÃ¤llt, wenn dieser Wert nicht -1 ist oder tagnr > dem JD fÃ¼r die StÃ¼tzstelle ist
 							while ((MTSTART[layer][i][j][nextJDindex]<tagnr)
 							&&(MTSTART[layer][i][j][nextJDindex]>0)
 							&&(MTSTART[layer][i][j][nextJDindex+1]>nodata+1))
 							{
 								nextJDindex++;
 							}
-							// was, wenn aktueller Tag >= Stützstelle, aber MTSTART noch -1 --> dann MTSTART auf JD setzen
+							// was, wenn aktueller Tag >= StÃ¼tzstelle, aber MTSTART noch -1 --> dann MTSTART auf JD setzen
 							if ((LUtable[use].GetJulianDay(nextJDindex)<=tagnr)
 									&&(LUtable[use].GetForcingThreshold(nextJDindex)>0))
 							{
@@ -6916,7 +6916,7 @@ void defaultini::CalculateDynamicPhenology(int tagnr,int numlayers)
 									) 
 							{
 								int nextJDindex=1;
-								// ermitteln der Stützstelle, für die als nächstes ein STarttag berechnet werden muss
+								// ermitteln der StÃ¼tzstelle, fÃ¼r die als nÃ¤chstes ein STarttag berechnet werden muss
 								// for method 6 we use both, TSTART and MTSTART
 								while ((MTSTART[layer][i][j][nextJDindex]<tagnr)
 								&&(MTSTART[layer][i][j][nextJDindex]>0)
@@ -7052,9 +7052,9 @@ void defaultini::CalculateDynamicPhenology(int tagnr,int numlayers)
 }
 
 
-//   Berechnen der aktuellen Pflanzenparameter je nach Vegetationszustand in Abhängigkeit 
-//   vom Julianischen Tag und der Landnutzung u ggf. der Höhe oder Temperatur.
-//   hier in der Version für Richards.
+//   Berechnen der aktuellen Pflanzenparameter je nach Vegetationszustand in AbhÃ¤ngigkeit 
+//   vom Julianischen Tag und der Landnutzung u ggf. der HÃ¶he oder Temperatur.
+//   hier in der Version fÃ¼r Richards.
 void defaultini::int_tvar_params(long me,long st, long tg, long mt, long jr,int InV)
 {
 	int i,j,k,tstart;
@@ -7524,7 +7524,7 @@ void defaultini::ClearMemory()
 	this->ClearMemoryGridStatistics();
 	for (int i=1;i<=2+gridanzahl;i++)
 	{
-		// check, ob Stack belegt ist, wenn ja, dann auch den Stack löschen
+		// check, ob Stack belegt ist, wenn ja, dann auch den Stack lÃ¶schen
 		free_matrix(gridinfo[i].pointer, gridinfo[i].nrl, gridinfo[i].nrh, 1, ncols, nrows);
 		if (gridinfo[i].stackpointer != NULL)
 		{
@@ -9919,7 +9919,7 @@ void defaultini::MakeHRUs(int &doSpinUp,int &doTemperaturePreSpinUp,int &repeatC
 								<<"[end-entry]";
 							throw(1031);
 						}
-						sprintf(cID,"%s%04.0lf'",cID,transformedValue);
+						sprintf(cID + strlen(cID), "%04.0lf'", transformedValue);
 					}
 				}
 				// try to add the sID to the Map
@@ -12707,9 +12707,9 @@ SOILtabletype::~SOILtabletype()
 
 void SOILtabletype::LookUpTableGenerationTMod(int layer,double factor)
 {
-	// temperatures are linearly distributed between -10°C and 0°C with 0°C beeing the 0-index already which is valid for temperatures at and above 0°+C
-	SE_T[layer][0]=1.0; // water saturation is 1 at and above 0°C
-	dEOverdT[layer][0]=0; // no energy change above 0°C
+	// temperatures are linearly distributed between -10Â°C and 0Â°C with 0Â°C beeing the 0-index already which is valid for temperatures at and above 0Â°+C
+	SE_T[layer][0]=1.0; // water saturation is 1 at and above 0Â°C
+	dEOverdT[layer][0]=0; // no energy change above 0Â°C
 	Ts_RelTheta[layer][0]=abs(PhaseChngMinTemp); // temperature shift for rel theta at or below below 0 limited to the actual regarded temperature
 	double dT=PhaseChngMinTemp/anz_T;
 
@@ -12930,7 +12930,7 @@ void SOILtabletype::initialize(wasim::mystream *WSstream,std::string row,int ver
 				theta_h = new dp[levels+1];
 				h_tab   = new dp[levels+1];
 
-// set in constructor already				anz_T=10000; // 0.01°C between 0 and -10°C
+// set in constructor already				anz_T=10000; // 0.01Â°C between 0 and -10Â°C
 				SE_T      = new dp[levels+1]; // lookup table for relative saturation as a function of temperature (per soil layer!)
 				dEOverdT  = new dp[levels+1]; // lookup table for internal energy change (per soil layer!)
 				Ts_RelTheta = new dp[levels+1]; // lookup table for temperature shifts
@@ -13018,7 +13018,7 @@ void SOILtabletype::CalcKOfSE(int offset,double *k_sat_of_SE,double *SE_sl,doubl
 			// version 1.0
 
 
-			// this type of direct index addressing is dangerous but a little bit faster than the interpolation above, it works best for anz_T = 10000 (0.01°C steps in the array)
+			// this type of direct index addressing is dangerous but a little bit faster than the interpolation above, it works best for anz_T = 10000 (0.01Â°C steps in the array)
 			// k_sat_of_SE[i] = ksat_SE[i][int(anz_T*SE_sl[i])];
 
 			// version 1.1
@@ -13087,7 +13087,7 @@ void SOILtabletype::CalcdEOverdT(double *dEOverdT_sl,double *temper_sl,double *t
 			}
 			else if (temper_sl[i]<PhaseChngMinTemp)
 			{
-				dEOverdT_sl[i]=0.0; // below PhaseChngMinTemp(e.g. -10.0°C) we assume total ice saturation, so no phase change energy si needed here
+				dEOverdT_sl[i]=0.0; // below PhaseChngMinTemp(e.g. -10.0Â°C) we assume total ice saturation, so no phase change energy si needed here
 			}
 			else
 			{
@@ -13109,7 +13109,7 @@ void SOILtabletype::CalcdEOverdT(double *dEOverdT_sl,double *temper_sl,double *t
 					int indexup=indexlow+1;
 					dEOverdT_sl[i] = dEOverdT[i][indexup]*fraction + dEOverdT[i][indexlow]*(1.0-fraction);
 				
-					// this type of direct index addressing is dangerous but a little bit faster than the interpolation above, it works best for anz_T = 10000 (0.01°C steps in the array)
+					// this type of direct index addressing is dangerous but a little bit faster than the interpolation above, it works best for anz_T = 10000 (0.01Â°C steps in the array)
 	//				dEOverdT_sl[i] = dEOverdT[i][int(-(anz_T/10.0)*temper_sl[i])];
 				}
 
@@ -13131,7 +13131,7 @@ void SOILtabletype::CalcSEanddEOverdT(int offset,double* SE_sl, double *dEOverdT
 			}
 			else if (temper_sl[i+offset] <= this->PhaseChngMinTemp)
 			{
-				SE_sl[i+offset] = 0.0; // below -10.0 °C we assume total ice saturation
+				SE_sl[i+offset] = 0.0; // below -10.0 Â°C we assume total ice saturation
 				dEOverdT_sl[i+offset] = 0.0; // alle ice thawed when soil temperature si > 0, so no phase change energy is needed
 			}
 			else
@@ -13160,9 +13160,9 @@ void SOILtabletype::CalcSEanddEOverdT(int offset,double* SE_sl, double *dEOverdT
 					int indexup = indexlow + 1;
 					SE_sl[i+offset] = SE_T[i][indexup] * fraction + SE_T[i][indexlow] * (1.0 - fraction);
 					dEOverdT_sl[i+offset] = dEOverdT[i][indexup] * fraction + dEOverdT[i][indexlow] * (1.0 - fraction);
-					// this type of direct index addressing is dangerous but a little bit faster than the interpolation above, it works best for anz_T = 10000 (0.01°C steps in the array
+					// this type of direct index addressing is dangerous but a little bit faster than the interpolation above, it works best for anz_T = 10000 (0.01Â°C steps in the array
 					// SE_sl[i] = SE_T[i][int(-(anz_T/10.0)*temper_sl[i])]; // range from 0 to 10000, since temper may vary from 0 to -10
-					// this type of direct index addressing is dangerous but a little bit faster than the interpolation above, it works best for anz_T = 10000 (0.01°C steps in the array)
+					// this type of direct index addressing is dangerous but a little bit faster than the interpolation above, it works best for anz_T = 10000 (0.01Â°C steps in the array)
 					// dEOverdT_sl[i] = dEOverdT[i][int(-(anz_T/10.0)*temper_sl[i])];
 
 					// old without lookup table: 
@@ -13185,7 +13185,7 @@ void SOILtabletype::CalcSE(double* SE_sl,double *temper_sl,double factor,double 
 			}
 			else if (temper_sl[i]<=this->PhaseChngMinTemp)
 			{
-				SE_sl[i]=0.0; // below -10.0 °C we assume total ice saturation
+				SE_sl[i]=0.0; // below -10.0 Â°C we assume total ice saturation
 			}
 			else
 			{
@@ -13208,7 +13208,7 @@ void SOILtabletype::CalcSE(double* SE_sl,double *temper_sl,double factor,double 
 					// is done now with a lookup table
 					SE_sl[i] = SE_T[i][indexup]*fraction + SE_T[i][indexlow]*(1.0-fraction);
 				
-					// this type of direct index addressing is dangerous but a little bit faster than the interpolation above, it works best for anz_T = 10000 (0.01°C steps in the array
+					// this type of direct index addressing is dangerous but a little bit faster than the interpolation above, it works best for anz_T = 10000 (0.01Â°C steps in the array
 	//				SE_sl[i] = SE_T[i][int(-(anz_T/10.0)*temper_sl[i])]; // range from 0 to 10000, since temper may vary from 0 to -10
 				
 					// old without lookup table: 
@@ -13725,7 +13725,7 @@ void SOILtabletype::initialize(wasim::mystream *WSstream,std::string row,std::st
 		theta_h = new dp[levels+1];
 		h_tab   = new dp[levels+1];
 
-// set in constructor already		anz_T=10000; // 0.01°C between 0 and -10°C
+// set in constructor already		anz_T=10000; // 0.01Â°C between 0 and -10Â°C
 		SE_T      = new dp[levels+1]; // lookup table for relative saturation as a function of temperature (per soil layer!)
 		dEOverdT  = new dp[levels+1]; // lookup table for internal energy change (per soil layer!)
 		Ts_RelTheta = new dp[levels+1]; // lookup table for temperature shifts

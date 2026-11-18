@@ -804,7 +804,7 @@ SCN_ir_radiation(NULL), SCN_snow_throuhfall(NULL), DetailedGlacierParams(0)
 			{
 				(*WSstream) << "WARNING: \n------------- warning: -------------\n"
 					<< "Could not read the optional parameter EnBalScaling (double),\n"
-					<< "for snow melt methods with energy baöance that will be used for scaling the energy balance (i.e. affect melt rates)\n"
+					<< "for snow melt methods with energy balance that will be used for scaling the energy balance (i.e. affect melt rates)\n"
 					<< "Setting default values of 1.0" << "[end-entry]";
 			}
 			tstr = fgets(tstr, _stringsize_, steuerdatei);
@@ -1155,7 +1155,7 @@ SCN_ir_radiation(NULL), SCN_snow_throuhfall(NULL), DetailedGlacierParams(0)
 				ICE=gridinfo[getindex(_ice_firn_)].pointer;
 			}
 
-			// lesen der Parameter für Gletschermodell 
+			// lesen der Parameter fÃ¼r Gletschermodell 
 			qfirngridname       = newstring(_stringsize_+1,1);
 			qfirnstatname       = newstring(_stringsize_+1,1);
 			qicegridname        = newstring(_stringsize_+1,1);
@@ -2909,7 +2909,7 @@ double schneemodellklasse::calc_Accu_and_Melt(int i, int j, double temperatur, d
 		if (SURFTEMPINTERPOL)
 		{
 			SurfaceTemperature = SURFTEMPINTERPOL[i][j];
-			if (SurfaceTemperature < 100) // input is probably not in Kelvin but in °C
+			if (SurfaceTemperature < 100) // input is probably not in Kelvin but in Â°C
 			{
 				SurfaceTemperature += 273.16; // convert into Kelvin
 			}
@@ -3006,7 +3006,7 @@ double schneemodellklasse::calc_Accu_and_Melt(int i, int j, double temperatur, d
 				//mk: Adflux in CEB??
 				Adflux = ((4180.0 * (AirTemperature - 273.16)) * P_RAIN[i][j] / (InV*60.0)) + ((2100.0 * (AirTemperature - 273.16)) * P_SNOW[i][j] / (InV*60.0));
 
-				if ((Sliq > 0) || (AirTemperature > 275.16)) // if the snow pack contains liquid water, we assume the surface temperature to be at 0°C. Also, if Air temperature is above 2°C
+				if ((Sliq > 0) || (AirTemperature > 275.16)) // if the snow pack contains liquid water, we assume the surface temperature to be at 0Â°C. Also, if Air temperature is above 2Â°C
 				{
 					SurfaceTemperature = 273.16; // first guess for iterative calculation of surface temperature or limiting when surface temperature is known 
 				}
@@ -3182,7 +3182,7 @@ double schneemodellklasse::calc_Accu_and_Melt(int i, int j, double temperatur, d
 				if (!(bHeatTransferActive && bLayeredSnowActive) || onGlacier)
 				{ // if heat transfer is active, Ebal is always 0 and refreezing is computed in the heat transfer model. This old way of estimating the refreezing is 
 				  // required only because there is no simple way to estimate the refreezing amount. So the usage of the energy balance is only a work around 
-				  // (and by the way: setting the surface temperature to 0°C for conditions when there is any liquid water in the snow pack is a bit awkward in any case)
+				  // (and by the way: setting the surface temperature to 0Â°C for conditions when there is any liquid water in the snow pack is a bit awkward in any case)
 					Mneg = -(Ebal*(Anteil*InV*60.0)) / 337500.0;
 					if ((Mneg > 0.0) && (Sliq>0.0))
 					{
@@ -3300,10 +3300,10 @@ double schneemodellklasse::calc_Accu_and_Melt(int i, int j, double temperatur, d
 						M = RMFkorr*(temperatur-T0)/InVtag;
 					}
 				} else if (methode == 5 || methode == 6 || methode == 7 || methode == 11) { // new snow model extensions (Warscher, 2013)
-					// no sub time steps are required here since surface temperature is kept constant at 0°C and also (positive) energy balances will lead to snow melt and no change in any temperature (wether snow surface nor snow pack temperature)
+					// no sub time steps are required here since surface temperature is kept constant at 0Â°C and also (positive) energy balances will lead to snow melt and no change in any temperature (wether snow surface nor snow pack temperature)
 					if (!SURFTEMPINTERPOL)
 					{ 
-						SurfaceTemperature = 273.16; // melting conditions, so the surface temperature is constant at 0°C or 273.16 K
+						SurfaceTemperature = 273.16; // melting conditions, so the surface temperature is constant at 0Â°C or 273.16 K
 					} // otherwise the observed surface temperature will be used
 					double VapPresAirSat;
 					if (AirTemperature > 273.16) 
@@ -3317,7 +3317,7 @@ double schneemodellklasse::calc_Accu_and_Melt(int i, int j, double temperatur, d
 					VapPresAir = VapPresAirSat*RLF[i][j];
 					// VapPresSnow = 6.1071 * exp((22.4429*(SurfaceTemperature-273.16))/(172.44+(SurfaceTemperature-273.16)))*1.0;
 					VapPresSnow = 6.1071; // since surface temperature is defined as 273.16, vapor pressure can be set to a constant value as well
-					// since SurfaceTemperature is constant for melting conditions at 0°C, this expression can be pre-calculated instead of using the power function or doing four multiplications each time
+					// since SurfaceTemperature is constant for melting conditions at 0Â°C, this expression can be pre-calculated instead of using the power function or doing four multiplications each time
 					LWout= -0.0000000567*LWOUTcorr*SurfaceTemperature*SurfaceTemperature*SurfaceTemperature*SurfaceTemperature;
 					//LWout = -312.2564; // if surface temperature is const. at 273.16K
 					if (P[i][j] == 0.0) {
@@ -3361,7 +3361,7 @@ double schneemodellklasse::calc_Accu_and_Melt(int i, int j, double temperatur, d
 					
 
 					// calculating wet bulb temperature in order to differentiate between snow melt and sublimation (vaporization), 
-					// which would require much more energy than melt and takes place when wet bulb temperature is below 0°C
+					// which would require much more energy than melt and takes place when wet bulb temperature is below 0Â°C
 					// rough estimation for actual air pressure, using the international elevation equation
 					double airpressure = 1013.25 * pow((1.0 - (0.0065*DHM[i][j])/288.15),5.255);
 					double mixingratio = 0.622*VapPresAir/(airpressure-VapPresAir);
@@ -3412,7 +3412,7 @@ double schneemodellklasse::calc_Accu_and_Melt(int i, int j, double temperatur, d
 						Ebal = 0; // when used again in heat transfer in unsatzonmodel as upper boundary condition
 					}
 
-					if (M < 0) M = 0; // when Ebal is negative (because too much outgoing radiation even for temperatures above 0°C), the negative melt is set to 0
+					if (M < 0) M = 0; // when Ebal is negative (because too much outgoing radiation even for temperatures above 0Â°C), the negative melt is set to 0
 
 					if (!(bHeatTransferActive && bLayeredSnowActive) || onGlacier)
 					{ // if heta transfer is active, we can much better estimate the snow pack temperature
@@ -4112,13 +4112,13 @@ void schneemodellklasse::run1(long me,long se, long tg, long mt, long jr)
 
 						}
 						// Achtung; Zufluss zu firn, schnee oder eis speicher richtet sich danach, welche Unterlage unter dem Schnee ist:
-						// Schmelze aus Schnee über Firn geht in den Firnspeicher (wird also eigentlich firnschmelze)
+						// Schmelze aus Schnee Ã¼ber Firn geht in den Firnspeicher (wird also eigentlich firnschmelze)
 						// Schmelze aus Schnee ueber Eis bleibt aber im Schneespeicher.
 						// removed on 12.12.2014; Qsnow is added to the firn and qsnowonglac statistics only since it must be left constant for the unglacierized fraction for the soil model as precipitation input
 						//						if (((glacmethode>10)&&(FIRN1[i][j]>0.0))||(ICE[i][j]==2))
 						//						{
-						//							// auf Firnflächen wird die Schneeschmelze als Firnschmelze betrachtet
-						//							QFIRN[i][j] = QSNOW[i][j]; // auf Firnflächen wird die Schneeschmelze als Firnschmelze betrachtet
+						//							// auf FirnflÃ¤chen wird die Schneeschmelze als Firnschmelze betrachtet
+						//							QFIRN[i][j] = QSNOW[i][j]; // auf FirnflÃ¤chen wird die Schneeschmelze als Firnschmelze betrachtet
 						//							QSNOW[i][j]=0; // und dafuer gibt es keine Schneeschmelze an diesen Flaechen -> wichtig fuer
 						//							// Parallelspeicherkonzept, Firn ist am langsamsten!! und dominiert daher bei einer Schnee-auf-Firn-Situation
 						//							QSNOW_OUT[i][j]=0;
@@ -5061,11 +5061,11 @@ void schneemodellklasse::run2(long me,long se, long tg, long mt, long jr)
 
 						// 12.12.2014 removed this section
 						//						// Achtung; Zufluss zu firn, schnee oder eis speicher richtet sich danach, welche Unterlage unter dem Schnee ist:
-						//						// Schmelze aus Schnee über Firn geht in den Firnspeicher (wird also eigentlich firnschmelze)
+						//						// Schmelze aus Schnee Ã¼ber Firn geht in den Firnspeicher (wird also eigentlich firnschmelze)
 						//						// Schmelze aus Schnee ueber Eis bleibt aber im Schneespeicher.
 						//						if (((glacmethode>10)&&(FIRN1[i][j]>0.0))||(ICE[i][j]==2))
 						//						{
-						//							// auf Firnflächen wird die Schneeschmelze als Firnschmelze betrachtet
+						//							// auf FirnflÃ¤chen wird die Schneeschmelze als Firnschmelze betrachtet
 						//							//	QFIRN[i][j] += QSNOW[i][j]*icevalue; // take into account the glacierized fraction only
 						//							QFIRN[i][j] += QSNOW[i][j]; // take into account the glacierized fraction only
 						//							// for remaining snow storage balance, do take into account the unglacierized fraction only
@@ -5204,11 +5204,11 @@ void schneemodellklasse::run2(long me,long se, long tg, long mt, long jr)
 					{
 						double glacierizedPart = glacierlist[i].CellCntGlacerized / (glacierlist[i].CellCntGlacerized + glacierlist[i].CellCntBare);
 
-						Qice[i] = zoneQICE[i].sx / zoneQICE[i].RelCellSum; // -> Gesamtschmelze vom EIS fuer das Teilgebiet i (bezogen auf Gesamtfläche des Teilgebietes, nicht nur auf die Gletscher!)
-						Qfirn[i] = zoneQFIRN[i].sx / zoneQFIRN[i].RelCellSum; // -> Gesamtschmelze vom FIRN fuer das Teilgebiet i (bezogen auf Gesamtfläche des Teilgebietes, nicht nur auf die Gletscher!)
-						//			  Qsnow[i] = zoneQSNOW[i].sx/zoneQSNOW[i].RelCellSum; // -> Gesamtschmelze vom SNOW fuer das Teilgebiet i (bezogen auf Gesamtfläche des Teilgebietes, nicht nur auf die Gletscher!)/
+						Qice[i] = zoneQICE[i].sx / zoneQICE[i].RelCellSum; // -> Gesamtschmelze vom EIS fuer das Teilgebiet i (bezogen auf GesamtflÃ¤che des Teilgebietes, nicht nur auf die Gletscher!)
+						Qfirn[i] = zoneQFIRN[i].sx / zoneQFIRN[i].RelCellSum; // -> Gesamtschmelze vom FIRN fuer das Teilgebiet i (bezogen auf GesamtflÃ¤che des Teilgebietes, nicht nur auf die Gletscher!)
+						//			  Qsnow[i] = zoneQSNOW[i].sx/zoneQSNOW[i].RelCellSum; // -> Gesamtschmelze vom SNOW fuer das Teilgebiet i (bezogen auf GesamtflÃ¤che des Teilgebietes, nicht nur auf die Gletscher!)/
 						// now with a separate statistics for snow melt on glaciers
-						Qsnow[i] = zoneQSnowOnGlac[i].sx / zoneQSnowOnGlac[i].RelCellSum; // -> Gesamtschmelze vom SNOW fuer das Teilgebiet i (bezogen auf Gesamtfläche des Teilgebietes, nicht nur auf die Gletscher!)/
+						Qsnow[i] = zoneQSnowOnGlac[i].sx / zoneQSnowOnGlac[i].RelCellSum; // -> Gesamtschmelze vom SNOW fuer das Teilgebiet i (bezogen auf GesamtflÃ¤che des Teilgebietes, nicht nur auf die Gletscher!)/
 
 						double step = InV / 60.0;
 						// since a disappeared glacier would result in division by zero, we set the components to 0 in that cases

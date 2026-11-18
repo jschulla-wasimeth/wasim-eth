@@ -524,7 +524,7 @@ void meteointerpol::finddategridlist(FILE *statfile,char *statfilename,
 		while (meteosatz[j-1]!='\n'); // wenn der reservierte Speicher fuer den Satz zu kurz war, weiter lesen 
 	}
 
-	// von ganz früher meteosatz=fgets(meteosatz,(20*anz)>_stringsize_?20*anz:_stringsize_,statfile);
+	// von ganz frÃ¼her meteosatz=fgets(meteosatz,(20*anz)>_stringsize_?20*anz:_stringsize_,statfile);
 	// 20.05.2007 for (j=1;j<=anz;j++) v[j] = -fehlwert - 1.0;
 
 	while ( (! feof(statfile)) && ! ( (*tg == taga) && (*mt == monata)	&& (*jr == jahra) && (*se == stundea) && (*me == minutea)))
@@ -1779,7 +1779,7 @@ double meteointerpol::getThiessenWithLapseRate(double x,double y,double elevatio
 			{
 				if (upperinversionfix>-9998.0)
 				{
-					if (hoehe[0][i]<=upperinversionfix) // Stationshöhe unter igo
+					if (hoehe[0][i]<=upperinversionfix) // StationshÃ¶he unter igo
 					{
 						if (elevation<=upperinversionfix)  // aktuelle Zelle auch unter igo => entspricht Methode 12 ohne upperlapserate
 						{
@@ -1790,9 +1790,9 @@ double meteointerpol::getThiessenWithLapseRate(double x,double y,double elevatio
 							result=value[0][i]+(upperinversionfix-hoehe[0][i])*lapserate + (elevation-upperinversionfix)*upperlapserate;
 						}
 					}
-					else // stationshöhe über igo
+					else // stationshÃ¶he Ã¼ber igo
 					{
-						if (elevation>upperinversionfix)  // aktuelle Zelle auch über igo 
+						if (elevation>upperinversionfix)  // aktuelle Zelle auch Ã¼ber igo 
 						{
 							result=value[0][i]+(elevation-hoehe[0][i])*upperlapserate;
 						}
@@ -2016,7 +2016,7 @@ void meteointerpol::ConstructGridFromStationCoordinates(int nr)
 	SecondDerivative = matrix(1,StatMeshNumRows,1,StatMeshNumCols);
 	CoordXStatR      = matrix(1,StatMeshNumRows,1,StatMeshNumCols);
 	CoordYStatR      = matrix(1,StatMeshNumRows,1,StatMeshNumCols);
-	/* hier müssen dann die Koordinaten entsprechend der Spalten/Reihenzuordnung der Stationen aus der Liste rein! */
+	/* hier mÃ¼ssen dann die Koordinaten entsprechend der Spalten/Reihenzuordnung der Stationen aus der Liste rein! */
 	for (i=1;i<=StatMeshNumRows;i++)
 	for (j=1;j<=StatMeshNumCols;j++)
 	{
@@ -3026,7 +3026,7 @@ if ((methode==10)||(methode==11))
 					}
 					else  /* wenn alle Werte Fehlwerte sind, ist gleichewerte==1, dann soll keine Interpolation stattfinden,
 				es gelten die alten Daten, ansonsten, wenn alle Werte der Eingabedatei (bis auf die Stationen mit Fehlwerten)
-				gleich sind (für alle Stationen), dann wird jetzt gesucht, welche Station keinen Fehlwert hat (und
+				gleich sind (fÃ¼r alle Stationen), dann wird jetzt gesucht, welche Station keinen Fehlwert hat (und
 				angenommen, dass dann alle anderen Stationen mit gueltigen Werten auch diesen Wert haben, denn gleichewerte
 				wurde beim Einlesen gesetzt als Ergebnis der Pruefung auf Gleichheit aller gueltigen Werte */
 					{
@@ -3633,7 +3633,7 @@ xmin(p_xll),ymin(p_yll),xmax(p_xll+ p_cellsize *(p_ncols+1)),ymax(p_yll+ p_cells
 			if (minstation) free(minstation); minstation=NULL;
 
 			/* stunde, tag monat und Jahr sind Variablen in modelobject. Das Array fuer eine 
-		ganze Reihe Stationsdateien heisst daher etwas anders. Geprüft wird jeweils beim Einlesen der 
+		ganze Reihe Stationsdateien heisst daher etwas anders. GeprÃ¼ft wird jeweils beim Einlesen der 
 		Daten, ob in allen Dateien die Werte gleich sind. */
 			minute = minute_a[0];
 			stunde = stunde_a[0];
@@ -3691,8 +3691,8 @@ xmin(p_xll),ymin(p_yll),xmax(p_xll+ p_cellsize *(p_ncols+1)),ymax(p_yll+ p_cells
 		else if (methode == 2) {
 			sprintf(meteosatz, "%s interpolated with regression from ", instanzname);
 			for (i = 1; i <= regiomax; i++)
-				sprintf(meteosatz, "%s %s,", meteosatz, dateinamekoef[i]);
-			sprintf(meteosatz, "%s zones from %s, control file: %s", meteosatz, gridinfo[1].name, steuername);
+				sprintf(meteosatz + strlen(meteosatz), " %s,", dateinamekoef[i]);
+			sprintf(meteosatz + strlen(meteosatz), " zones from %s, control file: %s", gridinfo[1].name, steuername);
 		}
 		else if (methode == 3) {
 			sprintf(meteosatz, "%s interpolated with idw+regression from %s, zones from %s,weighting = %4.1f, fraction distance: = %4.1f max distance = %8.0f, control file %s, additional columns: %d",
@@ -4610,7 +4610,7 @@ void precicorrclass::run()
 		{
 			/* holen der Parameter  */
 			meteo[Pindex]->getregresscoeffs(nr,&(igu[nr]),&(igo[nr]),a[nr],b[nr]);
-			/* zentrale Koordinaten für die hoehenabhaengige Regression */
+			/* zentrale Koordinaten fÃ¼r die hoehenabhaengige Regression */
 			xcen = meteo[Pindex]->xll+meteo[Pindex]->cellsize*meteo[Pindex]->ncols/2.0;
 			ycen = meteo[Pindex]->yll+meteo[Pindex]->cellsize*meteo[Pindex]->nrows/2.0;
 

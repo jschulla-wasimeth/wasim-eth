@@ -673,9 +673,9 @@ void teilmodellklasse::zonenidentification(double ***zn,statrecord **zone,Tzarra
 	if (mpi_rank == 0)
 	{
 		(*WSstream) << "ranking zones from " << gridinfo[getindex(_Zonengrid_Bodenmodell_)].name << " for " << instanzname << "[end-entry]";
-		zzone = (statrecord *)calloc(maxzonenzahl, sizeof(statrecord)); /* allocating maximum allowed memeory for a temporary statistics-array */
+		zzone = (statrecord *)calloc(maxzonenzahl + 1, sizeof(statrecord)); /* allocating maximum allowed memeory for a temporary statistics-array */
 		if (!zzone) speichererror(1);
-		zzarray = (Tzarray *)calloc((size_t)maxzonenwert, sizeof(Tzarray)); /* allocating maximum allowed memory for temporary zone-array */
+		zzarray = (Tzarray *)calloc((size_t)maxzonenwert + 1, sizeof(Tzarray)); /* allocating maximum allowed memory for temporary zone-array */
 		if (!zzarray) speichererror(1);
 		zzone[0].n = zzone[0].RelCellSum = 0.0;
 		zzone[0].sx = 0.0;

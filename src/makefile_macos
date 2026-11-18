@@ -1,0 +1,83 @@
+# makefile for macOS (Apple Silicon and Intel), using Apple clang and Homebrew packages
+#
+# required:  xcode-select --install
+#            brew install netcdf libomp
+# MPI build: brew install open-mpi
+#
+# usage:     make -f makefile_macos              (OpenMP + MPI, default)
+#            make -f makefile_macos MPI=0        (OpenMP only, no MPI)
+#            make -f makefile_macos ARCHFLAGS=   (portable binary, no CPU-specific tuning)
+
+BREW   ?= $(shell brew --prefix 2>/dev/null || echo /opt/homebrew)
+LIBOMP ?= $(shell brew --prefix libomp 2>/dev/null || echo $(BREW)/opt/libomp)
+NETCDF ?= $(shell brew --prefix netcdf 2>/dev/null || echo $(BREW)/opt/netcdf)
+
+# directory containing the bundled netCDF C++ interface sources
+NCXX = netcdfcpp_Linux
+
+MPI ?= 1
+
+ARCH := $(shell uname -m)
+ifeq ($(ARCH),arm64)
+ARCHFLAGS ?= -mcpu=apple-m1
+else
+ARCHFLAGS ?= -march=native
+endif
+
+# Apple clang has no built-in OpenMP runtime, so libomp from Homebrew is used.
+# For Homebrew GCC (e.g. CXX=g++-15) set OMPFLAGS=-fopenmp OMPLIBS=-fopenmp
+OMPFLAGS ?= -Xpreprocessor -fopenmp -I$(LIBOMP)/include
+OMPLIBS  ?= -L$(LIBOMP)/lib -lomp
+
+ifeq ($(MPI),1)
+# Homebrew's mpicxx wraps clang++ and adds the MPI include and library paths
+CXX     = mpicxx
+MPIDEFS = -D _MPI -D OMPI_SKIP_MPICXX
+SUFFIX  = -openmpi
+else
+ifeq ($(origin CXX),default)
+CXX     = clang++
+endif
+MPIDEFS =
+SUFFIX  =
+endif
+
+CXXFLAGS = -std=c++11 $(ARCHFLAGS) -O3 -D MACOS64 $(MPIDEFS) -D _OMP3 -D _NETCDF -D USE_NETCDF4 \
+           -I$(NETCDF)/include -I./$(NCXX) $(OMPFLAGS) -Wno-unused-result
+LDLIBS   = -L$(NETCDF)/lib -lnetcdf $(OMPLIBS) -lm
+
+BINPATH=./
+DISTRO=macos-$(ARCH)
+VERSIONU=11-01-01-$(DISTRO)
+TARGET=$(BINPATH)wasimuzr-$(VERSIONU)$(SUFFIX)
+
+OBJ=abfluss.o cspline.o dataassim.o defltuzr.o etpetr.o expokorr.o gifreader.o gwflow.o interzep.o irrigate.o \
+meteoint.o modapuzr.o modefuzr.o netcdfhlp.o parser.o siltingup.o snow_canopy.o snowmod.o stringp.o surfrout.o \
+teilmod.o unsatzon.o wasimuzr.o wsstream.o \
+$(NCXX)/ncAtt.o $(NCXX)/ncByte.o $(NCXX)/ncChar.o $(NCXX)/ncCheck.o $(NCXX)/ncCompoundType.o \
+$(NCXX)/ncDim.o $(NCXX)/ncDouble.o $(NCXX)/ncEnumType.o $(NCXX)/ncException.o $(NCXX)/ncFile.o $(NCXX)/ncFloat.o \
+$(NCXX)/ncGroup.o $(NCXX)/ncGroupAtt.o $(NCXX)/ncInt.o $(NCXX)/ncInt64.o $(NCXX)/ncOpaqueType.o $(NCXX)/ncShort.o \
+$(NCXX)/ncString.o $(NCXX)/ncType.o $(NCXX)/ncUbyte.o $(NCXX)/ncUint.o $(NCXX)/ncUint64.o $(NCXX)/ncUshort.o \
+$(NCXX)/ncVar.o $(NCXX)/ncVarAtt.o $(NCXX)/ncVlenType.o
+
+SRC = $(OBJ:%.o=%.cc)
+
+all: $(TARGET)
+
+$(TARGET): $(OBJ)
+	$(CXX) $(CXXFLAGS) $(OBJ) -o $(TARGET) $(LDLIBS)
+	strip $(TARGET)
+
+DEPENDFILE = .depend
+
+dep: $(SRC)
+	$(CXX) $(CXXFLAGS) -MM $(SRC) > $(DEPENDFILE)
+
+-include $(DEPENDFILE)
+
+%.o: %.cc
+	$(CXX) $(CXXFLAGS) -c $< -o $@
+
+.PHONY: all dep clean
+clean:
+	rm -f $(BINPATH)wasimuzr-$(VERSIONU) $(BINPATH)wasimuzr-$(VERSIONU)-openmpi $(OBJ)

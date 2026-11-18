@@ -537,14 +537,14 @@ void expokorrklasse::convertAbsoluteToRelativeSSD(int minute,int hour, int day, 
 
 /* Ausfuehren der expositions-, gefaelle- und
 abschattungsabhaengigen Korrektur fuer die direkte Sonnenstrahlung
-sowie für die Temperatur */
+sowie fÃ¼r die Temperatur */
 
 
 
 void expokorrklasse::run(long me, long se,long tg,long mt,long jr)
 {
 	int i,j,k,l,m;
-	int nrl,nrh,ncl,nch; /* werden jeweil für die untere und obere Grenze der Schleifen zum
+	int nrl,nrh,ncl,nch; /* werden jeweil fÃ¼r die untere und obere Grenze der Schleifen zum
 						Durchlaufen der Zeilen (nrl, nrh) und der Spalten (ncl, nch) berechnet */
 	double cosZ;
 	double inta,inte;
@@ -738,7 +738,7 @@ void expokorrklasse::run(long me, long se,long tg,long mt,long jr)
 		/* Wenn die Sonne im Intervall erst unter, dann aufgeht, muss zum Anfang und Ende
 	des Intervalls das Komplement zu 1 von dark_a und dark_e gebildet und addiert werden
 	Anteil_hell=(1-dark_a)+(1-dark_e) = 2-(dark_a+dark_e) = 2.0 - Anteil_dunkel
-	was für Anteil_dunkel zu Anteil_dunkel = 1-Anteil_hell = 1 - 2 + Anteil_hell = Anteil_dunkel-1 fuehrt */
+	was fÃ¼r Anteil_dunkel zu Anteil_dunkel = 1-Anteil_hell = 1 - 2 + Anteil_hell = Anteil_dunkel-1 fuehrt */
 		if (Anteil_dunkel > 1.0)
 		{
 			Anteil_dunkel--;
@@ -1081,9 +1081,9 @@ void expokorrklasse::run(long me, long se,long tg,long mt,long jr)
 			des Strahlungskorrekturkoeffizienten verwendet, da EXKORR im Wertebereich
 			zwischen 0 und (theoretisch) +Inf liegt sowie bei 1.0 seinen Normalwert hat.
 			Die Logarithmen haben dann den Wertebereich von -INF ... +INF, wobei durch die
-			Begrenzung des EXKORR-Faktors auf 5.0 die Korrekturwerte für die Temperatur
-			im Bereich -INF ... +1.6K liegen. Wird für die Temperaturkorrektur
-			noch ein unterer Grenzwert für EXKORR von 0.2 festgelegt, dann liegt
+			Begrenzung des EXKORR-Faktors auf 5.0 die Korrekturwerte fÃ¼r die Temperatur
+			im Bereich -INF ... +1.6K liegen. Wird fÃ¼r die Temperaturkorrektur
+			noch ein unterer Grenzwert fÃ¼r EXKORR von 0.2 festgelegt, dann liegt
 			der additive Temperaturkorrekturwert im Bereich +- 1.6 Kelvin.
 			Der sich so ergebende Korrekturwert wird noch an der relativen Sonnenscheindauer
 			gewichtet, um zu erreichen, dass bei wolkigem Himmel die Temperaturen nicht
@@ -1106,7 +1106,7 @@ void expokorrklasse::run(long me, long se,long tg,long mt,long jr)
 					}
 					else
 					{
-						/* diese Zeile erfasst auch den Fall, dass es Nacht oder bew”lkt ist,
+						/* diese Zeile erfasst auch den Fall, dass es Nacht oder bewÃ¶lkt ist,
 							weil dann SSD 0 ist. Bei Tageswerten wird hier nur die Tagesmitteltewmperatur
 							korrigiert -1.609 ist ln(0.2)*/
 						/* (1.0-nostrl) will be implemented as security factor: if SSD is >0 for any reason 

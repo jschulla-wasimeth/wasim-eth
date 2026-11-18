@@ -285,8 +285,8 @@ private:
 
 	int Tstart;			// julian day which was calculated using dynamic phenology
 	int Tstart_col;		// which column contains TStart?
-	int *days;	        // Stützstellen der Jahresgang-Kurve 
-	int *daystemp;        // nach Höhe korrigierten aktuellen Stützstellen 
+	int *days;	        // StÃ¼tzstellen der Jahresgang-Kurve 
+	int *daystemp;        // nach HÃ¶he korrigierten aktuellen StÃ¼tzstellen 
 	double	*rsc,			// minimal canopy-resistance der Landnutzung als Monatswerte 
 			*rsi,			// minimal interception-resistance der Landnutzung als Monatswerte 
 			*rse,			// minimal soil-resistance der Landnutzung als Monatswerte 
@@ -358,7 +358,7 @@ private:
 
 	// heat transfer parameters
 	double *nfactor;	// a vector of coefficients which are applied to the air temperature to get the surface temperature as boundary condition for the heat transport model
-	double nf_freezing,nf_thawing; // alternative n-factors per land use type: specific values for temperatures above and below 0°C which will be used if no monthly values are available
+	double nf_freezing,nf_thawing; // alternative n-factors per land use type: specific values for temperatures above and below 0Â°C which will be used if no monthly values are available
 	
 	// ArcVeg Parameters
 	double ArcVegInFactFull; // Inundation scaling factor for full inundation
@@ -561,7 +561,7 @@ private:
 			anz_h,      /* Anzahl von folgenden Wertepaaren fuer die h von theta - Beziehung       */
 			levels;     /* Anzahl an Schichten fuer diesen Boden. Alle Schichten haben identische k-theta und h-theta-Beziehungen, aber untershciedliche k_sat-Werte */
 	/* die erste Schicht ist im alten WaSiM bis version 6.4 0.05 m dick, die zweite 0.2 m  und ab der dritten alle Schichten je 0.25 m */
-	int		iNumHorizons; /* Anzahl Horizonte - momentan nur für das Einlesen der Parameter genutzt, da diese horizontweise eingelesen werden */	
+	int		iNumHorizons; /* Anzahl Horizonte - momentan nur fÃ¼r das Einlesen der Parameter genutzt, da diese horizontweise eingelesen werden */	
 	int		*LevelPerHorizon; 
 	double	**theta_k,   /* Werte fuer Wassergehalt in der k-Theta-Tabelle */
 			**k_tab,     /* zu den entsprechenden Indizes in theta_k passende relativb Leitfaehigkeiten (0..1) */
@@ -617,9 +617,9 @@ private:
 	double *DryThermalConduct; // dry thermal conductivity in W/(m*K) (or J/(m*s*K) --> 1J = 1Ws)
 	double KMinFrozenSoil;    // reduced k_sat (minimum hydraulic conductivity for fully frozrn soils)
 	double lnKMinFrozenSoil;    // log. value of KMinFrozenSoil as used in the calculation of the effective k-value
-	double PhaseChngMinTemp;  // minimum temperature, we want to be accounted for for phase change calculation, usually -10.0°C
+	double PhaseChngMinTemp;  // minimum temperature, we want to be accounted for for phase change calculation, usually -10.0Â°C
 	double drySoilThermalCondEff; // effective (constant) thermal conductivity for the soil particles part for saturated soil
-	double WaterThermalCondEff; // effective (constant) thermal conductivity for the water part for saturated soil of > 0°C
+	double WaterThermalCondEff; // effective (constant) thermal conductivity for the water part for saturated soil of > 0Â°C
 	
 	int anz_T; // number of look-Up-table entries for SE(T) table and dEoverdT-Table
 public:
@@ -752,7 +752,7 @@ public:
 		return drySoilThermalCondEff;
 	};
 
-	double getWaterThermalCondEff(int i,double LambdaWater) // effective (constant) thermal conductivity for the water part for saturated soil of > 0°C
+	double getWaterThermalCondEff(int i,double LambdaWater) // effective (constant) thermal conductivity for the water part for saturated soil of > 0Â°C
 	{
 		if (WaterThermalCondEff <= 0) 
 		{

@@ -945,31 +945,31 @@ do_ArcVeg(0),ARCVEGFRACTIONS(NULL), arcVegNumLayers(0)
 
 			if (methode==1)
 			{ 
-				sprintf(layername,"%s%s",layername,"(Penman/Monteith)_");
+				sprintf(layername + strlen(layername), "%s", "(Penman/Monteith)_");
 				ETPstat[lay]->schreibzonenwerte(layername,instanzname,LastResults,maxLastResults); 
 			}
 			else
 			{
 				if (methode==2)
 				{ 
-					sprintf(layername,"%s%s",layername,"(HAMON)_");
+					sprintf(layername + strlen(layername), "%s", "(HAMON)_");
 					ETPstat[lay]->schreibzonenwerte(layername,instanzname,LastResults,maxLastResults); 
 				}
 				else
 				if (methode==3)
 				{ 
-					sprintf(layername,"%s%s",layername,"(WENDLING)_");
+					sprintf(layername + strlen(layername), "%s", "(WENDLING)_");
 					ETPstat[lay]->schreibzonenwerte(layername,instanzname,LastResults,maxLastResults); 
 				}
 				else
 				if (methode==4)
 				{ 
-					sprintf(layername,"%s%s",layername,"(HAUDE)_");
+					sprintf(layername + strlen(layername), "%s", "(HAUDE)_");
 					ETPstat[lay]->schreibzonenwerte(layername,instanzname,LastResults,maxLastResults); 
 				}
 				else
 				{ 
-					sprintf(layername,"%s%s",layername,"(unknown_method)_");
+					sprintf(layername + strlen(layername), "%s", "(unknown_method)_");
 					ETPstat[lay]->schreibzonenwerte(layername,instanzname,LastResults,maxLastResults); 
 				}
 			}
@@ -1635,7 +1635,7 @@ ist das erforderlich. */
 		if (tags==0)
 		{  // Nacht
 			if ((lai_local>0)&&(vbg_local>0)&&(rsca>0)) {
-				rs = c1_0/(lai_local*vbg_local*c0_0004);    /* 1.0/(LAI*Vbg/2500.0)  --> ohne + 1.0/250.0, weil Evaporation vom Boden nur in unterster Schicht ber¸cksichtigt wird */
+				rs = c1_0/(lai_local*vbg_local*c0_0004);    /* 1.0/(LAI*Vbg/2500.0)  --> ohne + 1.0/250.0, weil Evaporation vom Boden nur in unterster Schicht ber√ºcksichtigt wird */
 			} else if (((lai_local<=0)||(vbg_local<=0))&&(rsca>0))  {
 				rs = 2500.0; // no leafs at all, set resitance to maximum value
 			} else {
@@ -1689,7 +1689,7 @@ ist das erforderlich. */
 		mit cp    spez. Waermekap. der tr. Luft bei konst. Druck = 1.005 KJ/Kg/K
 			p     Luftdruck in hPa
 			0.622 Verhaeltnis der molaren Massen von Wasserdampf und trockener Luft
-			lamda latente Verdunstungswaerme = (2500.8 - 2.372*T) KJ/Kg [T in ∞C]
+			lamda latente Verdunstungswaerme = (2500.8 - 2.372*T) KJ/Kg [T in ¬∞C]
 
 	Durch Einsetzen von (2) und (3) in (1) erhaelt man:
 
@@ -2347,7 +2347,7 @@ void verdunstungsmodellklasse::snow(long me,long se,long tg,long mt,long jr)
 				/* Wenn Das Schneemodell auch gerechnet wird, dann soll,
 		wenn mehr als 0 mm Schnee liegt, ETR zunaechst vom Schnee und erst dannach
 		vom Boden entnommen werden */
-				// bei Nutzung der neuen energybalance Methoden aber wird EVRS aus Schneemodell ¸bernommen
+				// bei Nutzung der neuen energybalance Methoden aber wird EVRS aus Schneemodell √ºbernommen
 				if (this->iSnowModelMethod==5 || this->iSnowModelMethod==6 || this->iSnowModelMethod==7 || this->iSnowModelMethod==11)
 				{
 					// EVRS was already set in snowmodel. If there is still snow, there is no energy left for evaporation (EVAR) or transpiration (ETR)
@@ -2663,7 +2663,7 @@ Statistikdatei geschrieben -> function verdunstungsmodell::real_uzr() */
 						ETR[0][i][j]=ETR[0][i][j]+EVRS[i][j]+EVAR[i][j];
 					}
 					ETRstat[0]->wertzufuegen(i,j,zarray[(int)zn[i][j]],ETR[0][i][j],1.0-icevalue);
-					ETRstat[0]->wertzufuegen(i,j,zarray[(int)zn[i][j]],0,icevalue); // add 0 for the unglazierÓzed part of the actual cell in order to get statistics for the entire subbasin
+					ETRstat[0]->wertzufuegen(i,j,zarray[(int)zn[i][j]],0,icevalue); // add 0 for the unglazier√Æzed part of the actual cell in order to get statistics for the entire subbasin
 				}
 //				if (icevalue>0) // add 0 for glacierized fractions of a cell in order to get weighed statistics for the entire basin
 //				{

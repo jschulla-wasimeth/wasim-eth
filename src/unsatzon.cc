@@ -301,7 +301,7 @@ because the actual surface flow is routed through these registers by pointer rot
 		}
 	}
 
-	/* kumulieren der relativen antiele der zonen, so dass die erste zone immer alle zellen enthält */
+	/* kumulieren der relativen antiele der zonen, so dass die erste zone immer alle zellen enthÃ¤lt */
 	for (int i = 1; i <= zonmax; i++)
 	{
 		for (int j = (int)maxzeit[i]; j>1; j--)
@@ -4970,7 +4970,7 @@ double unsatzonmodellklasse::GetMeanTheta(int &s,double* &dicken,double* &theta_
 //double unsatzonmodellklasse::GetMeanTheta(double upper,double lower,int AsAbsoluteAmount,int &s,double* &dicken,double* &theta_sl)
 /* returns the mean relative water content for a given soil depthrange
 upper: depth of the upper limit of soil depth range (e.g. 0 (surface) for 0..x m , 1 for 1..x m)
-lower: depth of the lower limit ôf the soil depth range (e.g. 1 for range x..1 m, 2 for x..2 m)
+lower: depth of the lower limit Ã´f the soil depth range (e.g. 1 for range x..1 m, 2 for x..2 m)
 */
 {
 	int k;
@@ -5713,13 +5713,13 @@ a fraction of infitration has to infiltrate into the second layer and so on*/
 				ku*=ksat[k+1];
 				
 				// geometrisches Mittel 
-				// abschalten für die folgende Testsequenz  keff = ko==0 ? 0 : ko*ku*(dicken[k]+dicken[k+1])/(dicken[k]*ku+dicken[k+1]*ko);
+				// abschalten fÃ¼r die folgende Testsequenz  keff = ko==0 ? 0 : ko*ku*(dicken[k]+dicken[k+1])/(dicken[k]*ku+dicken[k+1]*ko);
 
-				// Test, ob bei k-Wert immer von der besser gesättigten Schicht ein gleichmässigeres Versickern stattfinden kann
-				// Das funktioniert in dem Sinn, dass die Abflüsse aus den Schichten nicht mehr so extrem stark schwanken, sondern schön glatt sind.
+				// Test, ob bei k-Wert immer von der besser gesÃ¤ttigten Schicht ein gleichmÃ¤ssigeres Versickern stattfinden kann
+				// Das funktioniert in dem Sinn, dass die AbflÃ¼sse aus den Schichten nicht mehr so extrem stark schwanken, sondern schÃ¶n glatt sind.
 				// Allerdings reagiert der Boden insgesamt schneller mit Tiefenversickerung, da ja jede Schicht, in die versickert wird, sofort mit vollem
-				// K-Wert der darüberliegenden Schicht beliefert wird. Will man die Reaktion verlangsamen, dann muss man den k-Wert des Bodens entweder 
-				// über die Bodenartentabelle verringern, oder die Abnahme des k-Wertes mit der Tiefe muss vergrössert werden.
+				// K-Wert der darÃ¼berliegenden Schicht beliefert wird. Will man die Reaktion verlangsamen, dann muss man den k-Wert des Bodens entweder 
+				// Ã¼ber die Bodenartentabelle verringern, oder die Abnahme des k-Wertes mit der Tiefe muss vergrÃ¶ssert werden.
 				if (k<GWLEVEL[i][j]-1)
 				{
 					if (ko>ku)	{
@@ -7348,17 +7348,17 @@ double timestep,double* &macroinfiltration)
 			macrocapacity[k]=maxCapacity*pow(CapacityRedu,dicksum-dicken[k]/2.0);
 		}
 
-		// nun von unten nach oben Auffüllen des Bodens mit Makroporeninfiltration...
-		// maximum ist entweder die max. Kapazität oder, wenn weniger Regen fiel, die Differenz aus Regen und Threshold
+		// nun von unten nach oben AuffÃ¼llen des Bodens mit Makroporeninfiltration...
+		// maximum ist entweder die max. KapazitÃ¤t oder, wenn weniger Regen fiel, die Differenz aus Regen und Threshold
 		// in m/s
 		maxAvailable = ((p-PMacroThresh)>maxCapacity)?maxCapacity:(p-PMacroThresh);
-		// füllen von unten her -> k wird wieder runtergezählt.
+		// fÃ¼llen von unten her -> k wird wieder runtergezÃ¤hlt.
 		while ((k>0) && (maxAvailable>0))
 		{
 			// in eine Schicht passt entweder soviel Wasser, wie in macrocapacity[k] berechnet wurde, oder weniger (wenn sie schon zu feucht ist)
 			double maxFill;
 			infiltAmount=0; // initializing
-			maxFill = (thetasat[k]-theta_sl[k])*dicken[k]*1000.0; // in mm Wassersäule umgerechneter auffüllbarer Porenraum
+			maxFill = (thetasat[k]-theta_sl[k])*dicken[k]*1000.0; // in mm WassersÃ¤ule umgerechneter auffÃ¼llbarer Porenraum
 			if (maxFill>0)
 			{
 				if ((maxFill < maxAvailable*timestep)&&(maxFill < macrocapacity[k]*timestep))
@@ -7565,7 +7565,7 @@ void unsatzonmodellklasse::SolveTriDiag(int offset,int row,int col,double *lambd
 		coeff_c[i]  = -(2.0*timestep_heat*lambda_sl[i])/(dicken[i]*(dicken[i]+dicken[i+1])*heatcap_sl[i]);
 		coeff_b[i]  = 1 - coeff_c[i] + temp_a;
 //				right_v[i]  = temper_sl[i] + T[row][col]*actNFactor*temp_a; // with air temperature, melt may be too low during the melting season
-		right_v[i]  = temper_sl[i] + Tsurf*actNFactor*temp_a; // surface temperature is much higgher than 0°C for melting conditions since it mus treflect the energy balance as a heat flux only (instead of radiation that will reach deepr into the snow)
+		right_v[i]  = temper_sl[i] + Tsurf*actNFactor*temp_a; // surface temperature is much higgher than 0Â°C for melting conditions since it mus treflect the energy balance as a heat flux only (instead of radiation that will reach deepr into the snow)
 		result_x[i] = 0;
 	}
 
@@ -10425,7 +10425,7 @@ void unsatzonmodellklasse::run(long me,long se,long tg,long mt,long jr,long acts
 							(*WSstream) << "FATAL: error opening log-file "<< logfilename <<"[end-entry]";
 							throw(5);
 						}
-						fprintf(logdatei,"%2d.%2d., %2d h r=%3d, c=%3d : ziter=%3d, max_err = %lg \n",tag,monat,stunde,i,j,ziter,m_err);
+						fprintf(logdatei,"%2ld.%2ld., %2ld h r=%3d, c=%3d : ziter=%3d, max_err = %lg \n",tag,monat,stunde,i,j,ziter,m_err);
 						fclose(logdatei);
 					}
 
@@ -10617,7 +10617,7 @@ void unsatzonmodellklasse::run(long me,long se,long tg,long mt,long jr,long acts
 					/* ############################################################### */
 
 					/* surface runoff is p + SnowRunoffsub - fabs(qu_sl[0]), p is the sum of p and infex ! */
-					// Zwischenlösung, auch nicht korrekt:
+					// ZwischenlÃ¶sung, auch nicht korrekt:
 					//			QDgridsub = lateralinflow[0]+p+INFEXsub/timestep+qu_sl[0]+SnowRunoffsub; // weil beim Berechnen der Infiltration INFEX von P abgezogen wurde,
 					//			QDgridsub = lateralinflow[0]+INFEXsub/timestep+SnowRunoffsub; // weil beim Berechnen der Infiltration INFEX von P abgezogen wurde,
 					QDgridsub = lateralinflow[0]+INFEXsub/timestep; // Snowrunoff was already added to INFEX
@@ -11412,7 +11412,7 @@ void unsatzonmodellklasse::run(long me,long se,long tg,long mt,long jr,long acts
 				{
 					// now setting soil temperatures which will be used when the cell may become partly unglacierized.
 					// since we do not model the soil temperatures below glaciers, tha values will be taken from the nearest (at least partly) unglacierized cell
-					// and corrected by the elevation difference (0.7°C per 100m)
+					// and corrected by the elevation difference (0.7Â°C per 100m)
 					// 1. looking for the nearest neighbor with partly glacierized cells
 					int radius = 0;
 					double icevalue_iijj = 1;
@@ -11544,7 +11544,7 @@ void unsatzonmodellklasse::run(long me,long se,long tg,long mt,long jr,long acts
 					// now taking the soil temperatures from that cell ii/jj
 					if (cellfound)
 					{
-						double dT = (hgeo[nearest_i][nearest_j][1] - hgeo[i][j][1])*0.7 / 100.0; // 0.7°C per 100 m temperature decrement
+						double dT = (hgeo[nearest_i][nearest_j][1] - hgeo[i][j][1])*0.7 / 100.0; // 0.7Â°C per 100 m temperature decrement
 						for (int k = 0; k <= levels; k++)
 						{
 							temper[i][j][k] = temper[nearest_i][nearest_j][k] + dT;
@@ -12117,7 +12117,7 @@ void unsatzonmodellklasse::run(long me,long se,long tg,long mt,long jr,long acts
 				if (do_TMod>0)
 				{
 					// double thawdepth=0;
-					// todo: calculate the thaw depth: this may be the depth where the temperature is 0°C 
+					// todo: calculate the thaw depth: this may be the depth where the temperature is 0Â°C 
 					// or the depth where the SE_sl value is 0.1 or 0.5 or 0.9 or so
 					// value can be taken from THAWTMOD, the dummy grid for the temperature stack, whic his now no dummy any longer...
 					thawdepth_stat->wertzufuegen(i,j,TG,THAWTMOD[i][j]);
@@ -12301,7 +12301,7 @@ double unsatzonmodellklasse::updateSnowStorageLayers(double *swes_sl,double *swe
 	// return 0;
 	double extraSnowRunoff=0;
 	double maxFractionLiquid=this->dWaterHoldingCapacity;
-	for (int k=1;k<=levelsSnow;k++) // going from uppermost layer to the bottom. If a layer is empty below a filled layer (e.g. because snow was warmed up above 0°C and thus there is no snow anymore (SE_sl=1), that filled layer and all above will be moved to the lower, empty layer in order to close gaps
+	for (int k=1;k<=levelsSnow;k++) // going from uppermost layer to the bottom. If a layer is empty below a filled layer (e.g. because snow was warmed up above 0Â°C and thus there is no snow anymore (SE_sl=1), that filled layer and all above will be moved to the lower, empty layer in order to close gaps
 	{
 		double thetaUpperLayer=(k>1)?theta_sl[k-levelsSnow-1]:-9999; // comparing the actual layer with the upper layer makes sure that the next else-statement is done only for layers where the overlaying layer is empty, too
 		if ((theta_sl[k-levelsSnow]>=0) || (thetaUpperLayer>=0))
@@ -12727,7 +12727,7 @@ void unsatzonmodellklasse::run_arcveg(long me, long se, long tg, long mt, long j
 										AVINSCAL[i][j][lv] = 0;
 									}
 
-									// hier beginnt der Code für ein normales Jahr.
+									// hier beginnt der Code fÃ¼r ein normales Jahr.
 									// 1. calculating number of growth periods between 2 and 5
 									
 									if (AVGDD[i][j] < 250.0) {
@@ -14795,7 +14795,7 @@ void unsatzonmodellklasse::GetExternalGWTable(int iExternalTimeStep)
 			FILLPOR=NULL;
 		}
 		m_bCoupled=true;
-		delete searchtext;
+		delete[] searchtext;
 	}
 	// now we know, that we have to initialize the GW table by the values given in the external GWTable file 
 	// the HEAD from WaSiM's GW-Model is initialized from the unsatzon-model's gwstand-grid, so we are on the save side
@@ -14837,7 +14837,7 @@ void unsatzonmodellklasse::GetExternalGWTable(int iExternalTimeStep)
 							break;
 						}
 					}
-					// 3. Wenn beide Schichten gleich: normale Berechnung wie früher
+					// 3. Wenn beide Schichten gleich: normale Berechnung wie frÃ¼her
 					if (startschicht == endschicht)
 					{
 						// use a suction which should result in similar drainable porosities as may be used in a groundwater model						
@@ -14849,8 +14849,8 @@ void unsatzonmodellklasse::GetExternalGWTable(int iExternalTimeStep)
 						theta[i][j][startschicht]-=amount/ST[(int)SOIL[i][j]].getDzui()[startschicht];
 						sum_amount=amount;
 					}
-					// 4. wenn ungleiche Schichten: Schleife über alle Schichten: jeweils Boden bis auf 3.45m Saugspannung entwässern
-					// 5. Wassermenge zusammenzählen -> dabei nach Methode 1 oder 2 vorgehen (alle Schritte iinerhalb der Schleife)
+					// 4. wenn ungleiche Schichten: Schleife Ã¼ber alle Schichten: jeweils Boden bis auf 3.45m Saugspannung entwÃ¤ssern
+					// 5. Wassermenge zusammenzÃ¤hlen -> dabei nach Methode 1 oder 2 vorgehen (alle Schritte iinerhalb der Schleife)
 					else
 					{
 						int k;
@@ -14876,7 +14876,7 @@ void unsatzonmodellklasse::GetExternalGWTable(int iExternalTimeStep)
 							theta[i][j][k]-=amount/ST[(int)SOIL[i][j]].getDzui()[k];
 							sum_amount+=amount;
 						}
-						// und nun dasselbe für die letzte Schicht
+						// und nun dasselbe fÃ¼r die letzte Schicht
 						k=endschicht;
 						//d = ST[(int)SOIL[i][j]].getDzui()[k]; 
 						d=3.45;
@@ -14903,7 +14903,7 @@ void unsatzonmodellklasse::GetExternalGWTable(int iExternalTimeStep)
 							endschicht--;
 						}
 					}
-					// 3. Wenn beide Schichten gleich: normale Berechnung wie früher
+					// 3. Wenn beide Schichten gleich: normale Berechnung wie frÃ¼her
 					if (startschicht == endschicht)
 					{
 						// use a suction which should result in similar drainable porosities as may be used in a groundwater model						
@@ -14914,8 +14914,8 @@ void unsatzonmodellklasse::GetExternalGWTable(int iExternalTimeStep)
 						//						theta[i][j][startschicht]=ST[(int)SOIL[i][j]].getThetas(startschicht);
 						sum_amount=amount;
 					}
-					// 4. wenn ungleiche Schichten: Schleife über alle Schichten: jeweils Boden bis auf 3.45m Saugspannung entwässern
-					// 5. Wassermenge zusammenzählen -> dabei nach Methode 1 oder 2 vorgehen (alle Schritte iinerhalb der Schleife)
+					// 4. wenn ungleiche Schichten: Schleife Ã¼ber alle Schichten: jeweils Boden bis auf 3.45m Saugspannung entwÃ¤ssern
+					// 5. Wassermenge zusammenzÃ¤hlen -> dabei nach Methode 1 oder 2 vorgehen (alle Schritte iinerhalb der Schleife)
 					else
 					{
 						int k;
@@ -14937,7 +14937,7 @@ void unsatzonmodellklasse::GetExternalGWTable(int iExternalTimeStep)
 							theta[i][j][k]=ST[(int)SOIL[i][j]].getThetas(k);
 							sum_amount+=amount;
 						}
-						// und nun dasselbe für die letzte Schicht
+						// und nun dasselbe fÃ¼r die letzte Schicht
 						k=endschicht;
 						drain_theta = (ST[(int)SOIL[i][j]].getThetas(k)-theta[i][j][k]);
 						amount = (GWTableExtern[i][j]-hgeo[i][j][k])*drain_theta;
@@ -16494,7 +16494,7 @@ void unsatzonmodellklasse::MPISyncRivLnkCells1()
 
 
 void unsatzonmodellklasse::MPISyncRivLnkCells2() 
-//todo: hier noch die Reihenfolge der Buffer umkehren bzw. die Werte aus den processing cells nun in den RecvBuffer schreiben , dann MPI exchange durchführen und dann die Werte in den einzelnen Ranks aus dem Sendbuffer in die lokalen Zellen kopieren bzw. Vergleichen mit dem Originalwert
+//todo: hier noch die Reihenfolge der Buffer umkehren bzw. die Werte aus den processing cells nun in den RecvBuffer schreiben , dann MPI exchange durchfÃ¼hren und dann die Werte in den einzelnen Ranks aus dem Sendbuffer in die lokalen Zellen kopieren bzw. Vergleichen mit dem Originalwert
 {
 	// filling RevcBuffers with cell values for back trensfer
 	// When copying the buffer data from the processing cells, the buffers are processed out-of-order (as defined in the RiverLinkVector)

@@ -1,0 +1,4 @@
+# commits that only change formatting or encoding; use with
+#   git config blame.ignoreRevsFile .git-blame-ignore-revs
+# convert source files to UTF-8
+5746738fbaf5d8efca20251d5977bca8e5eb23df

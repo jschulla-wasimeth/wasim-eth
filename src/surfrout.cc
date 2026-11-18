@@ -1034,7 +1034,7 @@ void surfaceroutingclass::fzt_grid_auswerten()
 		}
 	}
 
-	/* kumulieren der relativen antiele der zonen, so dass die erste zone immer alle zellen enth‰lt */
+	/* kumulieren der relativen antiele der zonen, so dass die erste zone immer alle zellen enth√§lt */
 	for (int i = 1; i <= zonmax; i++)
 	{
 		for (int j = (int)maxzeit[i]; j>1; j--)
@@ -1733,7 +1733,7 @@ void surfaceroutingclass::GetMultipleFlowPath(int i,int j,double slope,double as
 // SR_cultivation: type of cultivation: 1=conserving;2=non-conserving,3=other (like forest or grassland)
 // RH: hydraulic radius in m -> flow depth as first iteration
 // VCF: vegetation covered fraction
-// Ie: energy slope(?) (Energieliniengef‰lle)
+// Ie: energy slope(?) (Energieliniengef√§lle)
 double surfaceroutingclass::GetRoughness(int i,int j,double v,int luse,int SR_cultivation,double RH,double VCFlocal,double Ie)
 {
 	double kst=this->LUtable[luse].GetSR_K_ST();

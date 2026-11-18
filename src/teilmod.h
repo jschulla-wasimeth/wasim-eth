@@ -637,7 +637,7 @@ public:
 	** SSD, /* Sonnenscheindauer-Grid relative values*/
 	**dhm,    /* Hoehenmodell */
 	**SHAPE,  /* Schattengrid 0=Sonne, 1=Schatten */
-	**T,      /* Temperatur (Tag bei InV > 720, sonst alleinige T für ges. Intervall) */
+	**T,      /* Temperatur (Tag bei InV > 720, sonst alleinige T fÃ¼r ges. Intervall) */
 	**Tnacht, /* Temperatur Nacht bei InV > 720 */
 	**IEFFMAX;/* theoretic maximum radiation regarding also the local slope, i.e. the Angle of incidence between the normal to the slope and the sun angle */
 
@@ -738,7 +738,7 @@ public:
 	int p_T,p_E,p_RLF,p_U,p_SSD,p_RG,p_LUSE,p_LDR; /* zur Berechnung eines Bit-Codes fuer
 						die einzelnen Methoden */
 	double  **Albedo,**dhm,**RLF,**E,**LDR,**RG,**SSD,**U,**SSDTemp, //(ggf. modellierte SSD) in SSDTemp
-	**T,      /* Temperatur (Tag bei InV > 720, sonst alleinige T für ges. Intervall) */
+	**T,      /* Temperatur (Tag bei InV > 720, sonst alleinige T fÃ¼r ges. Intervall) */
 	**Tnacht, /* Temperatur Nacht bei InV > 720 */
 	**NFK,**SB,**SSNOW,**EXKORR,**SSNOWGL,
 	**CL; // cloudiness, used for new snow model extensions by Warscher
@@ -781,8 +781,8 @@ public:
 	Ampl_Jg,   /* Jahresgang-maxima der Abweichung der Temp.Amplitudenaufteilung zwischen Tag/Nacht-Temperatur
 					bezogen auf den Jahresmittelwert (also z.B. 0.15, wenn die mittlere Aufteilung der T-Amplitude
 					zwischen 0.75 im Sommer und 0.45 im Winter schwanken kann */
-	minrelRG;  /* Ein minimalwert für die relative Strahlung, unterhalb dessen SSD=0 angenommen wird.
-					Dieser Parameter wird als Nullstelle aus dem Polynom 3. Ordnung für die Modellierung der
+	minrelRG;  /* Ein minimalwert fÃ¼r die relative Strahlung, unterhalb dessen SSD=0 angenommen wird.
+					Dieser Parameter wird als Nullstelle aus dem Polynom 3. Ordnung fÃ¼r die Modellierung der
 					Sonnenscheindauer aus der relativen Strahlung nach dem Sekantenverfahren berechnet
 					und muss zwischen 0.1 und 0.5 liegen, ansonsten wird ein Fehler vermutet. */
 	
@@ -912,7 +912,7 @@ public:
 	/* Grids from the gridinfo-array */
 	double  **DHM,
 	**P,
-	**T,      /* Temperatur (Tag bei InV > 720, sonst alleinige T für ges. Intervall) */
+	**T,      /* Temperatur (Tag bei InV > 720, sonst alleinige T fÃ¼r ges. Intervall) */
 	**Tnacht, /* Temperatur Nacht bei InV > 720 */
 	**U,**E,**QSNOW,**QSNOW_OUT,RMFakt,
 	**SSNOW,**SNOWDAYS,**SNOW_AGE,**P_SNOW,**P_RAIN,**SLIQ,**SSTO,**Albedo,**EXKORR;
@@ -1547,12 +1547,12 @@ public:
 	int TG,AL_code; // counter of ALs for the actual routing description
 
 	int   tabmax;  // Anzahl der Werte, die in Abgaberegeltabelle enthalten sind 
-	int	  rulecnt; // Anzahl Stützstellen (Julian-Day-Spalten)
+	int	  rulecnt; // Anzahl StÃ¼tzstellen (Julian-Day-Spalten)
 	long *WeekDays;
 	int   *JD,*start_hour,*stop_hour,* start_hour2, * stop_hour2;
 	double *ARTabIndex,  // Tabelle mit <tabmax> Punkten fuer Inhalt des Speichers oder Abfluss in einem Fluss
-	**ARTabValue, // Tabelle mit <tabmax> Punkten fuer Abgabe pro Stützstelle erster Index: Stützstelle, zweiter Index: 1..Tabmax
-	**ARChangeRate,  // Steigung der Verbindungsgerade zwischen 2 Inhalt-Abgabe-Punkten fuer jede Stützstelle
+	**ARTabValue, // Tabelle mit <tabmax> Punkten fuer Abgabe pro StÃ¼tzstelle erster Index: StÃ¼tzstelle, zweiter Index: 1..Tabmax
+	**ARChangeRate,  // Steigung der Verbindungsgerade zwischen 2 Inhalt-Abgabe-Punkten fuer jede StÃ¼tzstelle
 	*targetCapacity; // target capacity in m^3/3
 
 	double TgAe,TgAe_rel;
@@ -1636,12 +1636,12 @@ public:
 	//           *Inhalt, /* Tabelle mit <tabmax> Punkten fuer Inhalt des Speichers */
 	//           *Abgabe, /* Tabelle mit <tabmax> Punkten fuer Abgabe */
 	//           *ARChangeRate;  /* Steigung der Verbindungsgerade zwischen 2 Inhalt-Abgabe-Punkten fuer */
-	int	  rulecnt; // Anzahl Stützstellen (Julian-Day-Spalten)
+	int	  rulecnt; // Anzahl StÃ¼tzstellen (Julian-Day-Spalten)
 	long *WeekDays;
 	int   *JD,*start_hour,*stop_hour, * start_hour2, * stop_hour2;
 	double *ARTabIndex,  // Tabelle mit <tabmax> Punkten fuer Inhalt des Speichers oder Abfluss in einem Fluss
-	**ARTabValue, // Tabelle mit <tabmax> Punkten fuer Abgabe pro Stützstelle erster Index: Stützstelle, zweiter Index: 1..Tabmax
-	**ARChangeRate,  // Steigung der Verbindungsgerade zwischen 2 Inhalt-Abgabe-Punkten fuer jede Stützstelle
+	**ARTabValue, // Tabelle mit <tabmax> Punkten fuer Abgabe pro StÃ¼tzstelle erster Index: StÃ¼tzstelle, zweiter Index: 1..Tabmax
+	**ARChangeRate,  // Steigung der Verbindungsgerade zwischen 2 Inhalt-Abgabe-Punkten fuer jede StÃ¼tzstelle
 	*targetCapacity; // target capacity in m^3/3
 
 	double AREAm2, // balance entities for later output to the baance file
@@ -2421,7 +2421,7 @@ double *macrocapacity; // capacity of the macropores in any level
 	// variables for temperature model
 	int do_TMod; // 0 = do not run, 1=run
 	int iTModMethod; // method for temperature model: 0 = off, 1 = vertical heat transfer (diffusion only), 2 = diffusion and advection (energy transport by water flow)
-	double dTModLowBoundBase; // base temperature for lower boundary condition (in °C, with regard to sea level)
+	double dTModLowBoundBase; // base temperature for lower boundary condition (in Â°C, with regard to sea level)
 	double dTModLapseRate; // lapse rate for calculating the lower boundary condition according to the elevation of each cell
 	bool do_initializeTemper;
 	// default soil "constants" --> soiltable values will be set if they are assigned default values of <0
@@ -2432,8 +2432,8 @@ double *macrocapacity; // capacity of the macropores in any level
 	double dTModLamWat; // thermal conductivity of liquid water (0.5562)
 	double dTModLamIce; // thermal conductivity of ice (2.33)
 	double dTModCWater; // heat capacity of water in J/(Kg*K) (4187)
-	double dTModCIce20; // heat capacity of ice in J/(Kg*K) at -20°C (1940)
-	double dTModCIce0; // heat capacity of ice in J/(Kg*K) at 0°C (2090)
+	double dTModCIce20; // heat capacity of ice in J/(Kg*K) at -20Â°C (1940)
+	double dTModCIce0; // heat capacity of ice in J/(Kg*K) at 0Â°C (2090)
 	double dTModLatHeat; // latent heat of freezing in J/Kg (334000)
 	double dTModRhoWater; // density of water in Kg/m^3 (1000)
 	double dTModFactor; // Clapeyron solution dH/Tm in m/K or J/(m^3*K) (1.22)

@@ -1,0 +1,951 @@
+#####################################################################################################
+#
+#  WaSiM control file - annotated sample (Richards version, "wasimuzr")
+#
+#  Purpose: show the syntax, the sections and which entries are mandatory or optional.
+#  NOT tested and not meant to run as is: paths, grids and parameter values are placeholders,
+#  taken mostly from the Doubs setup (500 m, hourly) to keep them realistic.
+#
+#  References in the form (manual 4.3.3, p. 314) point to the model description
+#  docs/wasim_2025_en.pdf (manual version 11.00.10, June 2026). Page numbers are the printed ones.
+#  A complete, uncommented example is in the manual's appendix 7.1 (p. 410).
+#
+#  Legend used in this file
+#    [MANDATORY]    the section must exist in every control file, or WaSiM stops at start-up
+#                   (list in manual 4.3.4, p. 315). An unused submodel still needs its section,
+#                   usually with only the on/off switch and the time step (switch = 0).
+#    [CONDITIONAL]  mandatory only for a model version or a feature (e.g. one section per reservoir)
+#    [OPTIONAL]     may be left out entirely
+#    (pos)          a positional entry: its meaning comes from its line number within the section.
+#                   It can't be left out, and the order can't change.
+#    (key)          a "keyword = value" entry: optional, may appear in any order where allowed
+#
+#####################################################################################################
+#
+#  SYNTAX RULES (manual 4.3.1 - 4.3.3, p. 313-315)
+#
+#  - A section starts with a header in brackets, e.g. [model_time]. Sections may come in any order,
+#    but entries WITHIN a section have a fixed order.
+#  - No empty lines are allowed inside a section. Comment lines inside a section must start with "#".
+#    Between sections, empty lines and comments are free.
+#  - One entry per line. Text after the last value of an entry is a comment; prefix it with "#"
+#    anyway, or leftover words may be read as values.
+#  - Variables: "$set $name = value", starting in column 1, at least one space or tab between the
+#    four elements. Up to 2000 symbols. Values are plain strings and may contain other symbols.
+#  - A symbol must be separated from neighbouring text by spaces or tabs; "//" concatenates without
+#    a space: $inpath//$grid//.dhm  ->  /data/wasim/ch500/input/ch500.dhm
+#  - Any "$" outside a $set line must be a known symbol, otherwise WaSiM stops.
+#  - WaSiM writes the expanded file (no symbols, no "#" comments) as <controlfile>$$$ next to the
+#    original. Check that file when a value does not behave as expected.
+#  - File names are case sensitive on Linux and macOS (they are not on Windows).
+#
+#####################################################################################################
+
+
+# ===================================================================================================
+#  PART 1: SYMBOLS
+#  Not a section: $set lines can appear anywhere, but must come before their first use.
+#  Collecting them at the top keeps everything that changes between runs in one place.
+# ===================================================================================================
+
+# --- run period and paths ----------------------------------------------------------------------
+$set $runID1                 = 2021
+$set $runID2                 = 2022
+$set $mainpath               = /data/wasim/ch500/
+$set $inpath                 = $mainpath//input/
+$set $exchngpath             = $mainpath//exchange/
+$set $InitialStateDirectory  = $mainpath//state_$runID1//
+$set $DefaultOutputDirectory = $mainpath//output/
+# empty $outpath = write everything to DefaultOutputDirectory (manual 4.5.2, p. 317)
+$set $outpath                =
+$set $subdir_ingrids         = grids/
+$set $subdir_timeseries      = timeseries/
+
+# --- time step and period (used in [model_time] and in every submodel's second line) -----------
+$set $time       = 60
+$set $starthour  = 1
+$set $startday   = 1
+$set $startmonth = 1
+$set $startyear  = $runID1
+$set $endhour    = 0
+$set $endday     = 1
+$set $endmonth   = 1
+$set $endyear    = $runID2
+
+# --- 1 = read initial states from InitialStateDirectory, 0 = initialize internally (manual 4.7, p. 325)
+$set $readgrids  = 1
+
+# --- submodel switches (each submodel section starts with its switch) --------------------------
+$set $do_RegionalSuperposition    = 0
+$set $do_precipitation_correction = 1
+$set $do_radiation_correction     = 1
+$set $do_evapotranspiration       = 1
+$set $do_snow_model               = 1
+$set $do_interception_model       = 1
+$set $do_infiltration_model       = 0
+$set $do_soil_model               = 0
+$set $do_SiltingUpModel           = 0
+$set $do_SurfaceRoutingModel      = 0
+$set $do_lake_model               = 1
+$set $do_unsatzon_model           = 1
+$set $do_irrigation               = 0
+$set $do_groundwater_flow         = 1
+$set $do_routing_model            = 1
+$set $do_heat_transfer            = 0
+$set $do_ExternalCoupling         = 0
+$set $do_data_assimilation        = 0
+$set $do_substance_transport      = 0
+$set $do_irrigation_table         = 0
+$set $do_special_output           = 0
+$set $do_spin_up                  = 0
+
+# --- grid names: one base name, extensions per content -----------------------------------------
+# Static input grids: ESRI ASCII, WaSiM binary or netCDF (manual 4.6.1, p. 321).
+# None of these formats carries a coordinate system; document the CRS (LV95, EPSG:2056) elsewhere.
+$set $grid             = ch500
+$set $suffix           = grd
+$set $elevation_model  = $grid//.dhm
+$set $zone_grid        = $grid//.zon
+$set $subcatchments    = $grid//.ezg
+$set $flow_time_grid   = $grid//.fzs
+$set $river_links_grid = $grid//.lnk
+$set $slope_grid       = $grid//.slp
+$set $aspect_grid      = $grid//.exp
+$set $land_use_grid    = $grid//.use
+$set $soil_types       = $grid//.soil
+$set $river_depth_grid = $grid//.dep
+$set $river_width_grid = $grid//.wit
+$set $lake_grid        = $grid//.lake
+$set $max_pond_grid    = $grid//.maxpond
+$set $kolmationsgrid   = $grid//.kol
+$set $aquiferthick1    = $grid//.aq1
+$set $gw_kx_1_grid     = $grid//.kx1
+$set $gw_ky_1_grid     = $grid//.ky1
+$set $gw_storage_coeff_1 = $grid//.s01
+$set $gw_bound_h_1_grid  = $grid//.bh1
+$set $gw_bound_q_1_grid  = $grid//.bq1
+$set $gw_kolmation_1     = $grid//.gk1
+# result grids (written to $outpath)
+$set $tempegrid   = temp//.//$suffix
+$set $preci_grid  = prec//.//$suffix
+$set $windgrid    = wind//.//$suffix
+$set $sunshgrid   = ssd_//.//$suffix
+$set $radiagrid   = rad_//.//$suffix
+$set $humiditygrid = rhum//.//$suffix
+$set $albedo      = albe//.//$suffix
+$set $ETPgrid     = etp_//.//$suffix
+$set $ETRgrid     = etr_//.//$suffix
+$set $SSNOgrid    = ssno//.//$suffix
+$set $SLIQgrid    = sliq//.//$suffix
+$set $SSTOgrid    = ssto//.//$suffix
+$set $SIgrid      = si__//.//$suffix
+$set $Thetastack  = thet//.//$suffix
+$set $GWdepthgrid = gwst//.//$suffix
+$set $QDgrid      = qd__//.//$suffix
+$set $QIgrid      = qi__//.//$suffix
+$set $QBgrid      = qb__//.//$suffix
+$set $head1grid   = gwh1//.//$suffix
+
+# --- write codes -------------------------------------------------------------------------------
+# Grid write codes have up to 4 digits (manual 4.9.2, p. 336):
+#   thousands = vegetation period sums/averages, hundreds = min/max grids,
+#   tens = sum/average grids (1 run, 2 year, 3 month, 4 day; 5-8 the same as averages),
+#   ones = actual grids (0 none, 1 every step overwritten, 2 every step new name, 3 last step only ...)
+# Statistics file codes are 4 digits <a><nnn> (manual 4.9.1, p. 335):
+#   a = 1/2 average (domain / all zones), 3/4 sum (domain / all zones), 5/6 zones of [output_list];
+#   nnn = number of time steps aggregated. 2001 = every step, all zones; 4024 = daily sums.
+$set $Writegrid         = 3
+$set $Writegrid_series  = 3
+$set $Write_no_grid     = 0
+$set $Writestack        = 3
+$set $Write_no_stack    = 0
+$set $no_output         = 0
+$set $once_per_interval = 2001
+$set $routing_code      = 4001
+
+# --- shared interpolation parameters (manual 2.3, p. 22) ---------------------------------------
+$set $IDWweight   = 2
+$set $IDWmaxdist  = 100000
+$set $Anisoslope  = 45.0
+$set $Anisotropie = 0.8
+$set $SzenUse     = 0
+
+# --- calibration parameters per subbasin (used in [unsatzon_model]) ----------------------------
+# The legacy setups define one variable per subbasin and parameter ($kd1 ... $kd20 etc.).
+# Shown here for three subbasins only.
+$set $kd1 = 2
+$set $kd2 = 2
+$set $kd3 = 2
+$set $ki1 = 3
+$set $ki2 = 3
+$set $ki3 = 3
+$set $dr1 = 48.0
+$set $dr2 = 48.0
+$set $dr3 = 48.0
+
+
+# ===================================================================================================
+#  PART 2: RUN CONTROL
+# ===================================================================================================
+
+# [OPTIONAL] spin-up mode with HRUs, mainly for the heat transfer model (manual 2.26.3, p. 271)
+[SpinUp]
+$do_spin_up
+
+# [MANDATORY] zones (subbasins) for which statistics are written with codes 5nnn/6nnn
+# (manual 4.9.1, p. 334). (pos) first line = count, then one zone code per line.
+[output_list]
+3                # number of subbasins listed below
+1
+2
+3
+
+# [MANDATORY] screen output and output defaults (manual 4.9.2, p. 336; 4.5, p. 317)
+[output_interval]
+25               # (pos) screen output every n time steps
+1                # (pos) warning level for interpolation (no station within search radius)
+1                # (pos) unit of routed discharge: 0 = mm per time step, 1 = m3/s
+$time            # (pos) minutes from the date in the meteo files to the end of the time step
+WriteAsciiGrids  = 1                       # (key) 1 = ESRI ASCII output instead of WaSiM binary
+WriteDoubleGrids = 0                       # (key) 1 = double precision binary output
+WriteNetcdfGrids = 0                       # (key) 1 = also write grids and stacks to netCDF
+InitialStateDirectory  = $InitialStateDirectory    # (key) where state grids are read from (manual 4.5.3, p. 318)
+DefaultOutputDirectory = $DefaultOutputDirectory   # (key) default output path (manual 4.5.2, p. 317)
+
+# [MANDATORY] geographic reference for radiation calculations (manual 2.5, p. 58)
+[coordinates]
+47.0             # (pos) latitude of the basin centre in degrees
+6.6              # (pos) longitude of the basin centre in degrees
+15.0             # (pos) meridian of the official time zone (central Europe: 15)
+0                # (pos) time shift of the meteo data against true local time
+
+# [MANDATORY] transition distance between regions for regression interpolation (manual 2.3.15, p. 54)
+[region_transition_distance]
+15000            # (pos) in m
+
+# [MANDATORY] number of sub-steps for surface routing, unsaturated zone and groundwater
+[soil_surface_groundwater_substeps]
+1                # (pos)
+
+# [MANDATORY] the digital elevation model; it defines the grid (ncols, nrows, cellsize, corner)
+# that all other grids must match (manual 4.6.1, p. 321)
+[elevation_model]
+$inpath//$subdir_ingrids//$elevation_model
+
+# [MANDATORY] zone grid for meteorological statistics (manual 4.3.4, p. 315).
+# Zone codes: the manual allows 1...32768 and up to 16000 zones (7.3, error codes 3 and 4), but the code
+# only handles codes up to 32766 and fewer than 16000 zones safely (see TODO.md).
+[zone_grid]
+$inpath//$subdir_ingrids//$zone_grid
+
+# [MANDATORY] static grids (manual 4.8.1, p. 328). (pos) first line = number of grids that follow.
+# Each line: <file> <internal name> <fillcode> [(key) options]. The internal name tells WaSiM what
+# the grid is (list in manual 4.8.1.1, p. 328). Options (manual 4.8.1.2, p. 331):
+#   fillcode = 0|1|2   0 none, 1 nearest neighbour, 2 defaultValue (also allowed as bare 3rd value)
+#   defaultValue = x   readcode = 0|1 (0 = create internally)   writecode = n   outname = <file>
+#   periodicity = <n> <H|D|M|Y> <sub>   persistent = <0|1> <steps>   statfile = <file>  statcode = n
+[standard_grids]
+22
+$inpath//$subdir_ingrids//$slope_grid           slope_angle          1
+$inpath//$subdir_ingrids//$aspect_grid          slope_aspect         1
+$inpath//$subdir_ingrids//$land_use_grid        landuse              fillcode = 1
+$inpath//$subdir_ingrids//$subcatchments        zonegrid_soilmodel   1
+$inpath//$subdir_ingrids//$flow_time_grid       flow_times           fillcode = 1
+$inpath//$subdir_ingrids//$river_links_grid     river_links          0
+$inpath//$subdir_ingrids//$river_depth_grid     river_depth          0
+$inpath//$subdir_ingrids//$river_width_grid     river_width          0
+$inpath//$subdir_ingrids//$lake_grid            lake_codes           fillcode = 0
+$inpath//$subdir_ingrids//$soil_types           soil_types           fillcode = 1
+$inpath//$subdir_ingrids//$kolmationsgrid       kolmation            fillcode = 1 defaultValue = 1e-5
+$inpath//$subdir_ingrids//$aquiferthick1        aquifer_thickness_1  fillcode = 1
+$inpath//$subdir_ingrids//$gw_storage_coeff_1   gw_storage_coeff_1   fillcode = 1 defaultValue = 0.1
+$inpath//$subdir_ingrids//$gw_bound_h_1_grid    gw_boundary_fix_h_1  fillcode = 0 defaultValue = -9999
+$inpath//$subdir_ingrids//$gw_bound_q_1_grid    gw_boundary_fix_q_1  fillcode = 0 defaultValue = -9999
+$inpath//$subdir_ingrids//$gw_kx_1_grid         gw_k_x_1             fillcode = 1 defaultValue = 1e-5
+$inpath//$subdir_ingrids//$gw_ky_1_grid         gw_k_y_1             fillcode = 1 defaultValue = 1e-5
+$inpath//$subdir_ingrids//$gw_kolmation_1       gw_kolmation_1       fillcode = 1 defaultValue = 1e-5
+$inpath//$subdir_ingrids//$max_pond_grid        max_ponding_storage  fillcode = 1 defaultValue = 0
+# the next three grids are created internally (readcode = 0) and written once (writecode = 8)
+$inpath//$subdir_ingrids//uFCmm.grd             usableFieldCapacity_mm   fillcode = 1 defaultValue = 100 readcode = 0 outname = $outpath//uFCmm.grd
+$inpath//$subdir_ingrids//sb05rel.grd           SB_1_REL_grid            fillcode = 1 defaultValue = 1.0 readcode = 0 outname = $outpath//sb05rel.grd
+$inpath//$subdir_ingrids//etr2etp.grd           ETR2ETP                  fillcode = 1 defaultValue = 1.0 readcode = 0 outname = $outpath//etr2etp.grd
+
+# [MANDATORY] grids that change during the run, read as initial states or created (manual 4.8.2, p. 332)
+# (pos) first line = count, then per grid three lines: <file> <identification> <fillcode> <default value>,
+# its write code, and its read code. Identification codes are listed in manual table 4.8.2.
+[variable_grids]
+1
+$outpath//$albedo            albedo    1  0
+$Writegrid                   # write code for albedo
+$readgrids                   # 1 = read from InitialStateDirectory, 0 = derive from land use at start
+
+# [MANDATORY] simulation period (pos), each line one value
+[model_time]
+$starthour
+$startday
+$startmonth
+$startyear
+$endhour
+$endday
+$endmonth
+$endyear
+
+
+# ===================================================================================================
+#  PART 3: METEOROLOGICAL INPUT AND INTERPOLATION (manual 2.3, p. 22)
+#  Station files: 4 header lines (elevation, x, y, station names) above tab-separated data
+#  "YY MM DD HH values..." (manual 4.6.2, p. 323). Each name in [meteo_names] needs its own
+#  section with exactly that name.
+# ===================================================================================================
+
+# [MANDATORY] (pos) number of meteorological inputs
+[meteo_data_count]
+6
+
+# [MANDATORY] (pos) one name per line; count must match [meteo_data_count]
+[meteo_names]
+temperature
+precipitation
+wind_speed
+air_humidity
+global_radiation
+sunshine_duration
+
+# Interpolation methods (first line of each block below), see manual 2.3.1 - 2.3.12:
+#   1 IDW, 2 elevation-dependent regression, 3 IDW + regression, 4 Thiessen, 5 bilinear,
+#   6 bilinear gradients and residuals, 7 bicubic spline, 8 spline gradients and residuals,
+#   9 read external grids (ASCII, binary, GIF, netCDF; 2.3.9), 10 regression from station data (2.3.10),
+#   11 IDW + regression from station data (2.3.11), 12 Thiessen with lapse rate (2.3.12)
+# All six blocks have the same 20 positional lines for methods 10/11. Other methods need other lines.
+
+# [MANDATORY because listed in [meteo_names]]
+[temperature]
+10                                                  # (pos) method
+$inpath//$subdir_timeseries//temperature.dat AdditionalColumns=0   # (pos) station file; (key) AdditionalColumns, manual 2.3.14, p. 53
+900 1200 350 1 100                                  # (pos) lower/upper inversion [m], tolerance [m], overlap [0/1], cluster limit [m]
+$outpath//$tempegrid                                # (pos) result grid
+$Writegrid_series                                   # (pos) grid write code
+1.0                                                 # (pos) correction factor
+$outpath//temp.dat $once_per_interval               # (pos) statistics file + statistics code
+998                                                 # (pos) nodata threshold of the input file
+$IDWweight                                          # (pos) IDW distance weight
+0.1                                                 # (pos) weight of IDW in method 3/11
+$IDWmaxdist                                         # (pos) max. station distance [m]
+$Anisoslope                                         # (pos) anisotropy axis slope [deg]
+$Anisotropie                                        # (pos) anisotropy axis ratio
+-40                                                 # (pos) lower limit of results
+-40                                                 # (pos) replacement below lower limit
+40                                                  # (pos) upper limit of results
+40                                                  # (pos) replacement above upper limit
+$SzenUse                                            # (pos) 1 = apply scenarios (manual 2.4, p. 57)
+1                                                   # (pos) scenario type: 1 add, 2 multiply, 3 percent
+1                                                   # (pos) number of scenario cells
+
+[precipitation]
+11
+$inpath//$subdir_timeseries//precipitation.dat AdditionalColumns=0
+900 1200 350 1 100
+$outpath//$preci_grid
+$Writegrid_series
+1.0
+$outpath//prec.dat $once_per_interval
+998
+$IDWweight
+0.75
+$IDWmaxdist
+$Anisoslope
+$Anisotropie
+0.05
+0
+90
+90
+$SzenUse
+3
+1
+
+[wind_speed]
+11
+$inpath//$subdir_timeseries//windspeed.dat AdditionalColumns=0
+900 1200 350 1 100
+$outpath//$windgrid
+$Write_no_grid
+1.0
+$outpath//wind.dat $no_output
+998
+$IDWweight
+0.5
+$IDWmaxdist
+$Anisoslope
+$Anisotropie
+0
+0
+90
+90
+$SzenUse
+1
+1
+
+[air_humidity]
+10
+$inpath//$subdir_timeseries//humidity.dat AdditionalColumns=0
+900 1200 350 1 100
+$outpath//$humiditygrid
+$Write_no_grid
+1.0
+$outpath//rhum.dat $no_output
+998
+$IDWweight
+0.5
+$IDWmaxdist
+$Anisoslope
+$Anisotropie
+0.01
+0.01
+1.0
+1.0
+$SzenUse
+1
+1
+
+[global_radiation]
+11
+$inpath//$subdir_timeseries//radiation.dat AdditionalColumns=0
+900 1200 350 1 100
+$outpath//$radiagrid
+$Write_no_grid
+1.0
+$outpath//rad_.dat $no_output
+998
+$IDWweight
+0.5
+$IDWmaxdist
+$Anisoslope
+$Anisotropie
+0
+0
+1367
+1367
+$SzenUse
+1
+1
+
+[sunshine_duration]
+11
+$inpath//$subdir_timeseries//sunshine.dat AdditionalColumns=0
+900 1200 350 1 100
+$outpath//$sunshgrid
+$Write_no_grid
+1.0
+$outpath//ssd_.dat $no_output
+998
+$IDWweight
+0.5
+$IDWmaxdist
+$Anisoslope
+$Anisotropie
+0
+0
+1.0
+1.0
+$SzenUse
+1
+1
+
+# [MANDATORY] several interpolation methods combined per region (manual 2.3.13, p. 45)
+[RegionalSuperposition]
+$do_RegionalSuperposition
+$time
+
+
+# ===================================================================================================
+#  PART 4: SUBMODELS
+#  Every submodel section starts with (pos) its on/off switch, most with (pos) the time step next.
+#  With the switch at 0, the remaining lines can usually be left out.
+# ===================================================================================================
+
+# [MANDATORY] precipitation undercatch correction, y = p(ax + b) with wind speed x (manual 2.2, p. 21)
+[precipitation_correction]
+$do_precipitation_correction
+0.0              # (pos) rain/snow temperature threshold [degC]
+1.01             # (pos) rain: b
+0.01             # (pos) rain: a
+1.01             # (pos) snow: b
+0.05             # (pos) snow: a
+
+# [MANDATORY] topographic correction of radiation and temperature (manual 2.5.3, p. 61)
+[radiation_correction]
+$do_radiation_correction
+$time
+2                          # (pos) method
+$outpath//tcor.grd         # (pos) corrected temperature grid
+$Write_no_grid             # (pos) write code
+5                          # (pos) scaling factor for temperature correction
+$outpath//exkr.grd         # (pos) correction factors for direct radiation
+$Write_no_grid             # (pos) write code
+$outpath//schatten.grd     # (pos) shadow grid
+$Write_no_grid             # (pos) write code
+1                          # (pos) recalculate every n time steps
+1                          # (pos) split each time step into n parts (useful for daily steps)
+
+# [MANDATORY] potential and real evapotranspiration (manual 2.7, p. 69; 2.6, p. 61)
+[evapotranspiration]
+$do_evapotranspiration
+$time
+1                                                              # (pos) 1 Penman-Monteith, 2 Hamon, 3 Wendling, 4 Haude (2-4 daily only)
+0.5  0.6  0.8  1.0  1.1 1.1 1.2 1.1 1.0 0.9 0.7 0.5            # (pos) monthly factors for Hamon
+0.20 0.20 0.21 0.29 0.29 0.28 0.26 0.25 0.22 0.22 0.20 0.20    # (pos) monthly fh for Haude
+0.5                                                            # (pos) fk for Wendling
+$outpath//$ETPgrid                                             # (pos) potential ET grid
+$Write_no_grid
+$outpath//etp_.dat $no_output
+$outpath//$ETRgrid                                             # (pos) real ET grid
+$Write_no_grid
+$outpath//etr_.dat $once_per_interval
+$outpath//evap.grd                                             # (pos) potential evaporation grid
+$Write_no_grid
+$outpath//evap.dat $no_output
+$outpath//evar.grd                                             # (pos) real evaporation grid
+$Write_no_grid
+$outpath//evar.dat $no_output
+$outpath//etrs.grd                                             # (pos) real snow evaporation grid
+$Write_no_grid
+$outpath//etrs.dat $no_output
+$outpath//eip_.grd                                             # (pos) potential interception evaporation grid
+$Write_no_grid
+$outpath//eip_.dat $no_output
+$outpath//rgex.dat $once_per_interval                          # (pos) statistics of corrected radiation
++0.23   +1.77    -2.28    +1.28                                # (pos) RG = f(SSD) polynomial coefficients
++0.072  -0.808   +2.112   -0.239                               # (pos) SSD = f(RG) polynomial coefficients
+0.88 0.05                                                      # (pos) extinction coefficient phi, dphi
+1654.0                                                         # (pos) recession of daily T amplitude with altitude [m]
+3.3  4.4  6.1  7.9  9.4  10.0  9.9  9.0  7.8  6.0  4.2  3.2    # (pos) monthly max. daily T amplitude at 0 m
+0.62  0.1                                                      # (pos) part of the amplitude added to the daily mean
+$outpath//cloud.dat $no_output                                 # (pos) statistics of cloudiness
+
+# [MANDATORY] snow accumulation and melt (manual 2.9.6, p. 83).
+# Shown up to the last line of the classic methods. The legacy setups (method 7) continue after
+# $readgrids with the 2014 extensions: snow temperature grids, slide and deposition parameters and
+# long-wave corrections (manual 2.9.3 - 2.9.5, p. 76-81). Check 2.9.6 for the lines your method needs.
+[snow_model]
+$do_snow_model
+$time
+1                # (pos) method: 1 T-index, 2 T-u-index, 3 Anderson, 4 extended, 5-14 extended variants
+1.0              # (pos) transition range rain/snow around T0R [K]
+1.0              # (pos) T0R, temperature limit for rain [degC]
+1.0              # (pos) T0, temperature limit for melt [degC]
+0.05             # (pos) CWH, water holding capacity of snow [1/1]
+0.3              # (pos) CRFR, refreezing coefficient
+1.6              # (pos) C0, degree-day factor [mm/d/K]; 1 value or 12 monthly values (manual 2.9.8, p. 85)
+0.75             # (pos) C1, degree-day factor without wind
+0.75             # (pos) C2, wind-dependent degree-day factor
+0.07             # (pos) z0, roughness length [cm] (energy balance methods)
+3.5              # (pos) RMFMIN, minimum radiation melt factor
+5.0              # (pos) RMFMAX, maximum radiation melt factor
+0.40             # (pos) minimum snow albedo
+0.95             # (pos) maximum snow albedo
+$outpath//rain.grd
+$Write_no_grid
+$outpath//rain.dat $once_per_interval
+$outpath//snow.grd
+$Write_no_grid
+$outpath//snow.dat $once_per_interval
+$outpath//sday.grd
+$Writegrid
+$outpath//sday.dat $no_output
+$outpath//sage.grd
+$Writegrid
+$outpath//sage.dat $no_output
+$outpath//albe.dat $no_output
+$outpath//qsch.grd
+$Write_no_grid
+$outpath//qsch.dat $no_output
+$outpath//qsme.grd
+$Writegrid
+$outpath//qsme.dat $once_per_interval
+$outpath//$SSNOgrid          # (pos) solid snow storage (state)
+$Writegrid
+$outpath//$SLIQgrid          # (pos) liquid snow storage (state)
+$Writegrid
+$outpath//swe_.dat $once_per_interval
+$outpath//$SSTOgrid          # (pos) total snow storage
+$Writegrid_series
+$readgrids                   # (pos) 1 = read snow states from InitialStateDirectory
+
+# [OPTIONAL] glacier model (manual 2.22, p. 215). Not shown here; the section [ice_firn] holds the
+# firn and ice parameters and is needed only when glaciers are modelled.
+
+# [OPTIONAL, deprecated] simple permafrost model (manual 2.24, p. 235)
+[permafrost]
+1                # (pos) method: thaw depth = alpha * sqrt(snow-free days)
+30               # (pos) days of snow cover after which the soil is frozen again
+5                # (pos) max. SWE [mm] still counted as snow covered
+
+# [MANDATORY] interception (manual 2.10.2, p. 90; snow interception 2.10.4, p. 99)
+[interception_model]
+$do_interception_model
+$time
+1                            # (pos) method: 1 use ETP, 2 use EIP; 11, 12, 21, 22, 31, 32 add snow interception (manual 2.10.4, p. 99)
+$outpath//qi__.grd           # (pos) throughfall grid
+$Write_no_grid
+$outpath//qi__.dat $no_output
+$outpath//ei__.grd           # (pos) interception evaporation grid
+$Write_no_grid
+$outpath//ei__.dat $no_output
+$outpath//$SIgrid            # (pos) interception storage (state)
+$Writegrid
+$outpath//si__.dat $no_output
+0.35                         # (pos) water film thickness on leaves [mm], times LAI = capacity
+$readgrids                   # (pos) 1 = read interception storage from InitialStateDirectory
+
+# [CONDITIONAL: Topmodel version only] infiltration model (manual 2.11.1, p. 101)
+[infiltration_model]
+$do_infiltration_model
+$time
+
+# [CONDITIONAL: Topmodel version only] soil model (manual 2.12.3, p. 105)
+[soil_model]
+$do_soil_model
+$time
+
+# [CONDITIONAL: Richards version only] silting up (manual 2.13.4, p. 114)
+[SiltingUpModel]
+$do_SiltingUpModel
+$time
+
+# [CONDITIONAL: Richards version only] surface routing (manual 2.13.6, p. 126)
+[SurfaceRoutingModel]
+$do_SurfaceRoutingModel
+$time
+
+# [MANDATORY] lake model (manual 2.19.5, p. 196; input grids 2.19.6, p. 197)
+[lake_model]
+$do_lake_model
+2                # (pos) DEM handling: 1 DEM already shows lake bottoms, 2 correct DEM with ponding grid
+0.15             # (pos) albedo of open water
+0.05             # (pos) z0 of open water [m]
+$readgrids       # (pos) 1 = read lake states; 0 = initialize from V0 in the routing description
+
+# [OPTIONAL] data assimilation (manual 2.28.4, p. 286)
+[data_assimilation]
+$do_data_assimilation
+$time
+
+# [CONDITIONAL: Richards version only] unsaturated zone, Richards equation (manual 2.14.15, p. 149)
+[unsatzon_model]
+$do_unsatzon_model
+$time
+3                # (pos) method: 2 finite differences, 3 finite differences with dynamic time step (manual 2.14.14, p. 147)
+2                # (pos) interaction with surface water: 0 none, 1 exfiltration, 2 in- and exfiltration
+1                # (pos) ponding: 0 no, 1 yes (needs max_ponding_storage grid)
+0                # (pos) artificial drainage: 0 no, 1 yes (needs drainage grids; manual 2.14.6, p. 142)
+0                # (pos) clay layer: 0 no, 1 yes (needs clay grid; manual 2.14.7, p. 143)
+5e-8             # (pos) permeability of the clay layer [m/s]
+4                # (pos) initial groundwater level as layer index
+$outpath//qdra.dat $no_output
+$outpath//gwst.dat $no_output
+$outpath//gwn_.dat $once_per_interval
+$outpath//sb05.dat $once_per_interval
+$outpath//sb1_.dat $no_output
+$outpath//wurz.dat $no_output
+$outpath//infx.dat $no_output
+$outpath//pond.dat $no_output
+$outpath//qdir.dat $once_per_interval
+$outpath//qifl.dat $once_per_interval
+$outpath//qbas.dat $once_per_interval
+$outpath//qges.dat $once_per_interval
+$outpath//gwin.dat $no_output
+$outpath//gwex.dat $once_per_interval
+$outpath//macr.dat $no_output
+$outpath//qinf.dat $no_output
+$outpath//sb05.grd           # (pos) soil water content, root zone
+$Writegrid
+$outpath//sb1_.grd           # (pos) soil water content, whole unsaturated zone
+$Writegrid
+$outpath//wurz.grd           # (pos) root depth
+$Writegrid
+$outpath//$Thetastack        # (pos) stack: water content of all layers (state)
+$Writestack
+$outpath//hhyd.grd           # (pos) stack: hydraulic heads (state)
+$Writestack
+$outpath//hgeo.grd           # (pos) stack: geodetic heights of the layers (state)
+$Writestack
+$outpath//qu__.grd           # (pos) stack: outflows of the layers
+$Writestack
+$outpath//$GWdepthgrid       # (pos) groundwater depth
+$Writegrid
+$outpath//gwth.grd           # (pos) theta at the groundwater level
+$Writegrid
+$outpath//gwn_.grd           # (pos) groundwater recharge
+$Write_no_grid
+$outpath//gwlv.grd           # (pos) layer index of the groundwater table
+$Writegrid
+$outpath//qdra.grd           # (pos) drainage flow
+$Write_no_grid
+$outpath//satt.grd           # (pos) saturation flag
+$Write_no_grid
+$outpath//infx.grd           # (pos) infiltration excess
+$Write_no_grid
+$outpath//$QDgrid            # (pos) direct runoff
+$Writegrid
+$outpath//$QIgrid            # (pos) interflow
+$Writegrid
+$outpath//$QBgrid            # (pos) baseflow
+$Writegrid
+$outpath//gwin.grd           # (pos) infiltration from rivers
+$Writegrid
+$outpath//gwex.grd           # (pos) exfiltration into rivers
+$Writegrid
+$outpath//pond.grd           # (pos) ponding storage
+$Writegrid
+$outpath//uprs.grd           # (pos) capillary rise
+$Write_no_grid
+$outpath//perc.grd           # (pos) percolation
+$Write_no_grid
+$outpath//macr.grd           # (pos) macropore infiltration
+$Write_no_grid
+$outpath//irri.grd           # (pos) irrigation amount
+$Write_no_grid
+36 50                        # (pos) row and column of a control cell for detailed layer output
+$outpath//qbot.dat           # (pos) control cell: flows between layers
+$outpath//thet.dat           # (pos) control cell: theta per layer
+$outpath//hhyd.dat           # (pos) control cell: hydraulic heads
+$outpath//otherdata.dat      # (pos) control cell: other balance terms
+$outpath//etrd.dat           # (pos) control cell: transpiration withdrawal per layer
+$outpath//intd.dat           # (pos) control cell: interflow per layer
+# The next seven lines are tables by subbasin: one column per subbasin code, same order in each line.
+# Subbasin codes must exist in the subbasin grid (zonegrid_soilmodel).
+1      2      3              # (pos) subbasin codes
+$kd1   $kd2   $kd3           # (pos) recession constant direct runoff [h]
+$ki1   $ki2   $ki3           # (pos) recession constant interflow [h]
+$dr1   $dr2   $dr3           # (pos) drainage density (interflow) [1/m]
+0.4    0.4    0.4            # (pos) k in qb = Q0 * exp(-k/z), z = depth to groundwater
+0.1    0.1    0.1            # (pos) Q0 in the same formula
+0.9    0.9    0.9            # (pos) fraction of surface runoff on snow melt
+$readgrids                   # (pos) 1 = read states incl. the storage file below (manual 4.7.2, p. 327)
+$outpath//storage_richards.ftz   # (pos) storage content file for flow travel time zones
+120                          # (pos) minimum dynamic time step [s]
+$outpath//step.dat $no_output    # (pos) statistics of sub-steps
+$outpath//step.grd           # (pos) grid with number of sub-steps
+$Write_no_grid
+
+# [OPTIONAL] solver tuning for the unsaturated zone, (key) entries
+[unsatzon_tuning]
+maxerror = 1e-5
+max_iterations = 100
+
+# [OPTIONAL] heat transfer model (manual 2.25.9, p. 267)
+[heat_transfer]
+$do_heat_transfer
+
+# [MANDATORY] coupling with external models (manual 4.12, p. 351)
+[ExternalCoupling]
+$do_ExternalCoupling
+
+# [CONDITIONAL: Richards version only] irrigation (manual 2.18.2, p. 188)
+[irrigation]
+$do_irrigation
+$time
+
+# [CONDITIONAL: Richards version only] 2D groundwater flow (manual 2.15, p. 162)
+[groundwater_flow]
+$do_groundwater_flow
+$time
+1                # (pos) solver: 1 Gauss-Seidel iteration
+100              # (pos) max. iterations
+0.0001           # (pos) max. change between iterations [m]
+1.0              # (pos) alpha: 0 explicit, 0.5 Crank-Nicolson, 1 implicit
+1.0              # (pos) relaxation factor
+$readgrids       # (pos) 1 = read heads from InitialStateDirectory
+1                # (pos) number of aquifer layers; the four grid/write code pairs below repeat for each layer
+36 50            # (pos) control cell for flux output
+$outpath//glog.dat   # (pos) control cell output file
+1                # (pos) 1 = use the pond grid's hydraulic head
+$outpath//$head1grid     # (pos) layer 1: hydraulic heads (state)
+$Writegrid
+$outpath//flx1.grd       # (pos) layer 1: flux in x
+$Writegrid
+$outpath//fly1.grd       # (pos) layer 1: flux in y
+$Writegrid
+$outpath//gwbal1.grd     # (pos) layer 1: balance check (manual 2.15.2, p. 167)
+$Writegrid
+
+# [OPTIONAL] (key) entries
+[groundwater_tuning]
+frozenDepthScaling = 0.0     # reduce groundwater flow in frozen soil, 0...1
+
+
+# ===================================================================================================
+#  PART 5: ROUTING, RESERVOIRS AND ABSTRACTIONS (manual 2.16, p. 169)
+# ===================================================================================================
+
+# Symbols can also be defined right before the section that uses them.
+$set $dtmin1 = 60
+
+# [MANDATORY] discharge routing. Header lines (pos), then the routing structure.
+# The structure is a list of routing descriptions, one per subbasin, ordered from the headwaters
+# down to the outlet (manual 2.16.1.1, p. 172):
+#   TG <code> (AE=<total area km2>, AErel=<modelled fraction>)
+#    from OL <code> (kh, kv = storage coefficients main channel / flood plain [h],
+#                    Bh, Bv = widths [m], Th = main channel depth [m], Mh, Mv = Manning-Strickler [m^1/3/s],
+#                    I = slope [1/1], L = length [m], AE = tributary area [km2])
+#    and OL ...                         further tributaries
+#    and SUMTRIB a&b (...)              tributaries summed before routing
+#    and ZL <n> (modus = extern <file> <cols> | intern, channel parameters)   inflows
+#    and AL <n> (modus = extern <file> ... | intern ...)                     abstractions
+#    and SP <n> (file = ..., V0 = ..., C0 = ..., dTmin = ...)               reservoirs
+# Tanalys generates the TG/OL structure from a DEM and pour points, but not inflows, abstractions
+# or reservoirs; those are added by hand (manual 2.16.1.1, p. 173; 5.1.27, p. 392).
+[routing_model]
+$do_routing_model
+$time
+1 4800 150 48                # (pos) min/max specific discharge [l/s/km2], number of log. classes, splitting of the time step
+$outpath//qgko.dat $routing_code             # (pos) routed discharge output + code
+$inpath//$subdir_timeseries//obsrunoff.dat   # (pos) observed discharge for R2/EV (manual 2.20, p. 213; format 4.6.3, p. 325)
+3                            # (pos) number of column descriptors that follow
+1   1                        # subbasin 1 <- column 1 of the observed file
+2   2                        # subbasin 2 <- column 2
+3   0                        # subbasin 3: no observation (0)
+0                            # (pos) time steps skipped at the start for R2 calculation
+TG 3 (AE=120.0, AErel=1.0)
+ from AL 1 (modus = extern $outpath//abstraction_03.dat 0.4 0.95 25 m^3/s )
+TG 2 (AE=480.0, AErel=1.0)
+ from OL 3 (kh=0.1, kv=0.4, Bh= 8.9, Bv= 35.7, Th=1.04, Mh=25.0, Mv=10.0, I=0.0136, L=5500.0, AE=120.0)
+  and SP 1 ( file = $outpath//spv_01_sub02.dat , V0 = 8.0E6, C0 = 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0, dTmin = $dtmin1 )
+TG 1 (AE=1300.0, AErel=1.0)
+ from OL 2 (kh=0.1, kv=0.4, Bh=31.8, Bv=127.4, Th=3.18, Mh=25.0, Mv=10.0, I=0.0023, L=37500.0, AE=480.0)
+  and ZL 1 (modus = extern $inpath//$subdir_timeseries//inflow_upstream.dat 4 5 , kh=0.1, kv=0.4, Bh=31.8, Bv=127.4, Th=3.18, Mh=25.0, Mv=10.0, I=0.0023, L=37500.0, AE=164.0)
+
+# [CONDITIONAL: one section per reservoir SP <n> in the routing structure] storage-outflow rule
+# (manual 2.19.7 - 2.19.8, p. 199-203). First line (pos): number of rows that follow, then one Julian day
+# per column (the sampling points of the year); then rows of <volume m3> <outflow m3/s per column>.
+# Above the last volume, outflow equals inflow.
+[abstraction_rule_reservoir_1]
+4    1    366
+0      0     0
+1.0e6  2     2
+5.0e6  10    10
+8.0e6  500   500
+
+# [CONDITIONAL: one section per internal abstraction AL <n> using a rule]
+# e.g. [abstraction_rule_abstraction_2] - not needed here, AL 1 above is external (file based).
+
+
+# ===================================================================================================
+#  PART 6: PROPERTY TABLES
+#  Table syntax: <ID> <name> { key = value(s); ... } where IDs refer to the cell values of the
+#  land use or soil grid, every parameter ends with ";" and the record is closed with "}".
+# ===================================================================================================
+
+# [MANDATORY] combinations of basic land uses into vegetation layers (manual 4.10.1.1, p. 339)
+# (pos) first line = number of entries
+[multilayer_landuse]
+3
+1  settlements   { Landuse_Layers = 1, -9999;  k_extinct = 0.3; LAI_scale = 20;}
+2  grassland     { Landuse_Layers = 2, -9999;  k_extinct = 0.3; LAI_scale = 20;}
+3  forest        { Landuse_Layers = 3,  2;     k_extinct = 0.3; LAI_scale = 20;}
+
+# [MANDATORY] basic land use parameters (manual 4.10.1.2, p. 340; full list of keys there).
+# Mandatory keys: method, RootDistr, TReduWet, HReduDry, JulDays, and one value per JulDays
+# entry for Albedo, rsc, LAI, Z0, VCF, RootDepth, AltDep. Optional: LimitReduWet, IntercepCap,
+# rs_interception, rs_evaporation, the dynamic phenology keys (manual 2.23, p. 227) and more.
+[landuse_table]
+3
+1  settlements {method = VariableDayCount;
+        RootDistr        = 1.0;
+        TReduWet         = 0.95;
+        LimitReduWet     = 0.5;
+        HReduDry         = 3.5;
+        IntercepCap      = 0.3;
+        JulDays          = 15    46    74    105   135   166   196   227   258   288   319   349 ;
+        Albedo           = 0.2   0.2   0.2   0.2   0.2   0.2   0.2   0.2   0.2   0.2   0.2   0.2 ;
+        rsc              = 100   100   100   80    75    75    75    75    80    90    100   100 ;
+        rs_evaporation   = 150   150   150   150   150   150   150   150   150   150   150   150 ;
+        LAI              = 1     1     1     1     1     1     1     1     1     1     1     1   ;
+        Z0               = 1     1     1     1     1     1     1     1     1     1     1     1   ;
+        VCF              = 0.5   0.5   0.5   0.5   0.5   0.5   0.5   0.5   0.5   0.5   0.5   0.5 ;
+        RootDepth        = 0.4   0.4   0.4   0.4   0.4   0.4   0.4   0.4   0.4   0.4   0.4   0.4 ;
+        AltDep           = 0.025 0.025 0.025 0.025 0.025 0.025 -0.025 -0.025 -0.025 -0.025 -0.025 -0.025;
+        }
+2  grassland {method = VariableDayCount;
+        RootDistr        = 1.0;
+        TReduWet         = 0.95;
+        HReduDry         = 3.45;
+        IntercepCap      = 0.3;
+        JulDays          = 15    46    74    105   135   166   196   227   258   288   319   349 ;
+        Albedo           = 0.25  0.25  0.25  0.25  0.25  0.25  0.25  0.25  0.25  0.25  0.25  0.25 ;
+        rsc              = 80    80    80    70    60    60    60    60    70    80    80    80 ;
+        LAI              = 1     1     2     3     4     4     4     4     3     2     1     1   ;
+        Z0               = 0.03  0.03  0.05  0.1   0.15  0.15  0.15  0.15  0.1   0.05  0.03  0.03 ;
+        VCF              = 0.8   0.8   0.8   0.9   0.95  0.95  0.95  0.95  0.9   0.8   0.8   0.8 ;
+        RootDepth        = 0.3   0.3   0.3   0.4   0.5   0.5   0.5   0.5   0.4   0.3   0.3   0.3 ;
+        AltDep           = 0.025 0.025 0.025 0.025 0.025 0.025 -0.025 -0.025 -0.025 -0.025 -0.025 -0.025;
+        }
+3  forest {method = VariableDayCount;
+        RootDistr        = 1.0;
+        TReduWet         = 0.95;
+        HReduDry         = 4.0;
+        IntercepCap      = 0.4;
+        JulDays          = 15    46    74    105   135   166   196   227   258   288   319   349 ;
+        Albedo           = 0.12  0.12  0.12  0.12  0.12  0.12  0.12  0.12  0.12  0.12  0.12  0.12 ;
+        rsc              = 90    90    80    70    65    65    65    65    70    80    90    90 ;
+        LAI              = 8     8     8     9     10    10    10    10    9     8     8     8   ;
+        Z0               = 2     2     2     2     2     2     2     2     2     2     2     2   ;
+        VCF              = 0.9   0.9   0.9   0.9   0.95  0.95  0.95  0.95  0.9   0.9   0.9   0.9 ;
+        RootDepth        = 1.2   1.2   1.2   1.2   1.2   1.2   1.2   1.2   1.2   1.2   1.2   1.2 ;
+        AltDep           = 0     0     0     0     0     0     0     0     0     0     0     0   ;
+        }
+
+# [OPTIONAL] global soil parameters, (key) entries (manual 2.14.17, p. 156)
+[GlobalSoilParameters]
+psi_FC_global = 200; (hPa)            # field capacity suction applied to all soils ...
+usePsiFCglobalForUnassignedOnly = 1;  # ... or, with 1, only where a soil gives no psi_FC
+
+# [MANDATORY] soil profiles (manual 4.10.2, p. 345). (pos) first line = number of entries.
+# Mandatory keys: method (only "MultipleHorizons"), layers, ksat [m/s], theta_sat, theta_res,
+# alpha, Par_n, thickness (of ONE numerical layer in that horizon, in m). One value per horizon.
+# Optional keys: Name, horizon, ThicknessScaling, Par_tau (default 0.5), k_recession (default 1.0),
+# maxratio, Par_m, EvapMaxDepth, (hPa)psi_FC, macropore keys, silting-up keys.
+# All profiles must have the same total number of numerical layers (here 10 + 10 = 20 and 9 + 2 + 9 = 20).
+# Each layer adds one level to every soil stack, i.e. memory per cell (docs/domain-size-limits.md).
+[soil_table]
+2
+1  loam_deep {
+        method            = MultipleHorizons;
+        Name              = topsoil   subsoil;
+        horizon           = 1         2;
+        ThicknessScaling  = 1.0;
+        ksat              = 4e-6      2e-6;
+        k_recession       = 0.95      0.95;
+        theta_sat         = 0.43      0.41;
+        theta_res         = 0.078     0.07;
+        (hPa)psi_FC       = 200       200;
+        alpha             = 3.6       3.6;
+        Par_n             = 1.56      1.56;
+        Par_tau           = 0.5       0.5;
+        thickness         = 0.05      0.15;
+        layers            = 10        10;
+        }
+2  sand_three_horizons {
+        method            = MultipleHorizons;
+        horizon           = 1         2         3;
+        ksat              = 8.25e-5   6.0e-5    1.0e-5;
+        theta_sat         = 0.43      0.41      0.38;
+        theta_res         = 0.045     0.045     0.05;
+        alpha             = 14.5      14.5      10.0;
+        Par_n             = 2.68      2.68      2.0;
+        thickness         = 0.10      0.30      2.00;
+        layers            = 9         2         9;
+        }
+
+# [CONDITIONAL: Richards version only] solute transport (manual 2.21, p. 214)
+[substance_transport]
+$do_substance_transport
+
+# [CONDITIONAL: Richards version only] irrigation table (manual 2.18, p. 186)
+[irrigation_table]
+$do_irrigation_table
+
+# [OPTIONAL] extra output of internal grids by name (list of names in manual 7.4, p. 438)
+[special_output]
+$do_special_output
+$time

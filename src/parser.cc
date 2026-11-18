@@ -753,7 +753,7 @@ Error::Error(const int col, const int id, const double darg)
 	std::string s;
 	ss << msgdesc(id) << darg;
 	ss >> s;
-    sprintf(msg, s.c_str());
+    sprintf(msg, "%s", s.c_str());
 }
 
 Error::Error(const int col, const int id, const int iarg)
@@ -763,7 +763,7 @@ Error::Error(const int col, const int id, const int iarg)
 	std::string s;
 	ss << msgdesc(id) << iarg;
 	ss >> s;
-    sprintf(msg, s.c_str());
+    sprintf(msg, "%s", s.c_str());
 }
 
 Error::Error(const int col, const int id, const char *carg)
@@ -775,13 +775,13 @@ Error::Error(const int col, const int id, const char *carg)
 	s=std::string(msgdesc(id));
 	s=s+carg;
 	//ss >> s;
-    sprintf(msg, s.c_str());
+    sprintf(msg, "%s", s.c_str());
 }
 
 Error::Error(const int col, const int id)
 : err_col(col), err_id(id)
 {
-    sprintf(msg, msgdesc(id));
+    sprintf(msg, "%s", msgdesc(id));
 }
 
 /**

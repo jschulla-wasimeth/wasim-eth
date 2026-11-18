@@ -1,8 +1,8 @@
 /*
 Expression parser
-lang:   C++ code, project developed with wxDev-C++ (rewritten for ANSI C++ under MS VC 2008 and gcc 4.3 by Jörg Schulla)
+lang:   C++ code, project developed with wxDev-C++ (rewritten for ANSI C++ under MS VC 2008 and gcc 4.3 by JÃ¶rg Schulla)
 author: Jos de Jong, 2007-12-22
-		changes made by Jörg Schulla 2011-03-05:
+		changes made by JÃ¶rg Schulla 2011-03-05:
 		- putting all files together into one source and one header file (for easier inclusion into WaSiM)
 		- removing namespace usage in headers (is generally not recommended to use namespaces in headers)
 		- replacing snprintf functions by sprintf
